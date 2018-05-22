@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Bee Hive Scale</string>
+    <string name="status_baterija">status_baterija</string>
+    <string name="unitID">Unit-A000001</string>
+    <string name="mass">25 kg</string>
+    <string name="credentials_en">Credentials</string>
+    <string name="key">KEY</string>
+    <string name="unit_id">UNIT ID</string>
+    <string name="cancel_this">Cancel</string>
+    <string name="save">Save</string>
+    <string name="refresh_en">Refresh</string>
+    <string name="textview">TextView</string>
+    <string name="reset">Reset</string>
+    <string name="about">About</string>
+    <string name="about_info">About Info</string>
+    <string name="wait">Please wait</string>
+    <string name="NO_CONECTIVITY_ALEART">No Connectivity. Reading from last good update.</string>
+    <string name="_50">50</string>
+    <string name="info">Information</string>
+    <string name="desc01">This is complitely constructed unit, and your unit should be constructed in same way as on this image.</string>
+    <string name="close">Close</string>
+    <string name="desc02">This is the way you should replace battery when the unit is not operational.
+       \n 1. Turn switch off.
+       \n 2. Unscrew bolts, take cap off.
+       \n 3. Replace battery.
+       \n 4. Put cap back in its place and gently tight screws.
+       \n 5. Turn switch on.
+    </string>
+</resources>

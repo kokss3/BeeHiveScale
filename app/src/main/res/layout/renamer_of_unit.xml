@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp">
+
+    <ImageView
+        android:id="@+id/icon_bee"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/colorPrimary"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/bee_icon"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/originalName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/textview"
+        android:layout_below="@+id/icon_bee"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:padding="10dp" />
+
+    <EditText
+        android:id="@+id/renameName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/originalName"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:inputType=""
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/save_unit_name"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/renameName"
+        android:text="@string/save" />
+
+    <Button
+        android:id="@+id/cancel_unit_name"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/renameName"
+        android:padding="5dp"
+        android:text="@string/cancel_this"
+        tools:ignore="ButtonOrder" />
+
+    <Button
+        android:id="@+id/reset_to_old"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/renameName"
+        android:layout_centerHorizontal="true"
+        android:text="@string/reset" />
+
+</RelativeLayout>

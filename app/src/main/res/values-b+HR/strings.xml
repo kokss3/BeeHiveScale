@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bee Hive Scale</string>
+    <string name="status_baterija">status_baterija</string>
+    <string name="unitID">Unit-A000001</string>
+    <string name="mass">25 kg</string>
+    <string name="credentials_en">Podaci</string>
+    <string name="key">Ključ</string>
+    <string name="unit_id">Identifikacijski broj</string>
+    <string name="cancel_this">Prekini</string>
+    <string name="save">Spremi</string>
+    <string name="refresh_en">Osvježi</string>
+    <string name="textview">TextView</string>
+    <string name="reset">Zadano</string>
+    <string name="about">O programu</string>
+    <string name="about_info">Info</string>
+    <string name="wait">Pričekajte</string>
+    <string name="NO_CONECTIVITY_ALEART">Nema konekcije. Učitano od zadnje uspješnog čitanja.</string>
+    <string name="_50">50</string>
+    <string name="info">Informacije</string>
+    <string name="desc01">Na slici je prikazan model kompletnog modula, svaka mjerna jedinica bi po sklapanju izgledati slično.</string>
+    <string name="close">Zatvori</string>
+    <string name="desc02">Primjer kako zamjeniti bateriju ako se jedinica prestala javljati.
+    \n 1. Ugasiti prekidač.
+    \n 2. Odvrnuti vijke i skinuti poklopac.
+    \n 3. Zamjeniti bateriju.
+    \n 4. Vratiti poklopac i lagano dotegnuti vijke.
+    \n 5. Upaliti prekidač.
+</string>
+</resources>

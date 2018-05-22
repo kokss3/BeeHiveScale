@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bee Hive Scale</string>
+    <string name="status_baterija">status_baterija</string>
+    <string name="unitID">Unit-A000001</string>
+    <string name="mass">25 kg</string>
+    <string name="credentials_en">Referenzen</string>
+    <string name="key">Schlüssel</string>
+    <string name="unit_id">Identifizierungsnummer</string>
+    <string name="cancel_this">Stornieren</string>
+    <string name="save">Speichern</string>
+    <string name="refresh_en">Aktualisierung</string>
+    <string name="textview">TextView</string>
+    <string name="reset">Zurücksetzen</string>
+    <string name="about">Über</string>
+    <string name="about_info">Über Info</string>
+    <string name="wait">Warten</string>
+    <string name="NO_CONECTIVITY_ALEART">Keine Konnektivität. Lesen von der letzten guten Aktualisierung.</string>
+    <string name="_50">50</string>
+    <string name="info">infoPanel</string>
+    <string name="desc01">TextView</string>
+    <string name="close">Close</string>
+    <string name="desc02" />
+</resources>
