@@ -1,0 +1,753 @@
+Index: app/src/main/java/com/example/koks/beehivescale/Common.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/koks/beehivescale/Common.java	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/java/com/example/koks/beehivescale/Common.java	(date 1528123309571)
+@@ -13,7 +13,7 @@
+         SavingFiles fileSaver = new SavingFiles(context);
+ 
+         if (fileSaver.readFile(FILE_NAME_ADDRESS_ITEM) == "") {
+-            MY_THING = "testis2";
++            MY_THING = "testis";
+         }
+ 
+         MY_THING = fileSaver.readFile(FILE_NAME_ADDRESS_ITEM);
+@@ -28,7 +28,7 @@
+         API_KEY = newKey;
+     }
+ 
+-    public static String apiRequestNotKeyed() {
++    public String apiRequestNotKeyed() {
+         StringBuilder sb = new StringBuilder(API_LINK);
+         sb.append(MY_THING);
+         return sb.toString();
+Index: app/src/main/java/com/example/koks/beehivescale/layoutAdapter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/koks/beehivescale/layoutAdapter.java	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/java/com/example/koks/beehivescale/layoutAdapter.java	(date 1527167229678)
+@@ -56,7 +56,7 @@
+         parialRow = new SingleRow((ArrayList) getItem(position));
+ 
+         //set unitID to textView
+-         UnitID.setText(renameUnitID.readNewUnitID(parialRow.getUnit()));
++        UnitID.setText(renameUnitID.readNewUnitID(parialRow.getUnit()));
+         MassValue.setText("" + String.valueOf(parialRow.getMass()) + " kg");
+ 
+         double number = parialRow.getVolts() / 255;
+@@ -64,15 +64,15 @@
+         PercBatt.setText(String.valueOf(perc));
+         number = number * 4.175;
+ 
+-        if (number>3.95){
++        if (number>4){
+             Battery.setImageResource(R.mipmap.zelena_puna);
+-        } else if (number<=3.95 && number > 3.65) {
++        } else if (number<=4 && number > 3.8) {
+             Battery.setImageResource(R.mipmap.zelena_skoropuna);
+-        } else if (number<=3.65 && number > 3.3) {
++        } else if (number<=3.8 && number > 3.6) {
+             Battery.setImageResource(R.mipmap.zelena_polupuna);
+-        } else if (number <= 3.3 && number > 3.1) {
++        } else if (number <= 3.6 && number > 3.12) {
+             Battery.setImageResource(R.mipmap.zuta_pola);
+-        } else if (number <= 3.05) {
++        } else if (number <= 3.12) {
+             PercBatt.setTextColor(Color.parseColor("#ff1818"));
+             Battery.setImageResource(R.mipmap.crvana_prazno);
+         }
+Index: app/src/main/java/com/example/koks/beehivescale/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/koks/beehivescale/MainActivity.java	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/java/com/example/koks/beehivescale/MainActivity.java	(date 1528128715875)
+@@ -1,8 +1,11 @@
+ package com.example.koks.beehivescale;
+ 
+ import android.app.Dialog;
++import android.app.Fragment;
++import android.app.FragmentTransaction;
+ import android.app.ProgressDialog;
+ import android.content.Context;
++import android.content.Intent;
+ import android.os.AsyncTask;
+ import android.os.Bundle;
+ import android.support.v4.widget.SwipeRefreshLayout;
+@@ -12,7 +15,6 @@
+ import android.view.Menu;
+ import android.view.MenuInflater;
+ import android.view.MenuItem;
+-import android.view.MotionEvent;
+ import android.view.View;
+ import android.widget.AdapterView;
+ import android.widget.Button;
+@@ -28,16 +30,17 @@
+ import java.text.ParseException;
+ import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+-import java.util.Calendar;
+ import java.util.Date;
++import java.util.HashMap;
+ import java.util.Iterator;
++import java.util.Locale;
+ 
+ import static android.widget.Toast.LENGTH_LONG;
+ 
+ public class MainActivity extends AppCompatActivity {
+-    Context context = this;
++    private Context context = this;
+     private Common produceAPI = new Common(context);
+-    SavingFiles fileSaver = new SavingFiles(context);
++    private SavingFiles fileSaver = new SavingFiles(context);
+     private ListView hiveInfo;
+     private ArrayList<String> units = new ArrayList<>();
+ 
+@@ -61,16 +64,34 @@
+         swipeRefreshLayout=findViewById(R.id.sw_refresh);
+         hiveInfo = findViewById(R.id.hive_info);
+         produceAPI = new Common(context);
+-        new GetUnitData().execute(Common.apiRequestNotKeyed());
++        new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
++        startService(new Intent(this, netGetterService.class));
+ 
+         swipeRefreshLayout.setOnRefreshListener(
+                 new SwipeRefreshLayout.OnRefreshListener() {
+                     @Override
+                     public void onRefresh() {
+-                        new GetUnitData().execute(Common.apiRequestNotKeyed());
++                        new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
+                     }
+                 }
+         );
++        hiveInfo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
++            @Override
++            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
++                final ArrayList e = (ArrayList<String>) parent.getAdapter().getItem(position);
++
++                FragmentTransaction ft = getFragmentManager().beginTransaction();
++                Fragment prev = getFragmentManager().findFragmentByTag("dialog");
++                if (prev != null) {
++                    ft.remove(prev);
++                }
++                ft.addToBackStack(null);
++                graphDay dialogFragment = new graphDay();
++
++                dialogFragment.setID((String) e.get(0));
++                dialogFragment.show(ft, "dialog");
++            }
++        });
+ 
+         hiveInfo.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+             @Override
+@@ -94,7 +115,7 @@
+                             Log.e("What to change with",changeItem.getText().toString());
+                         }
+ 
+-                        new GetUnitData().execute(Common.apiRequestNotKeyed());
++                        new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
+                         dialog.cancel();
+                     }
+                 });
+@@ -103,7 +124,7 @@
+                     @Override
+                     public void onClick(View v) {
+                         saveID.addNewUnitID(e.get(0), e.get(0));
+-                        new GetUnitData().execute(Common.apiRequestNotKeyed());
++                        new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
+                         dialog.cancel();
+                     }
+                 });
+@@ -131,7 +152,7 @@
+     public boolean onOptionsItemSelected(MenuItem item) {
+         switch (item.getItemId()) {
+             case R.id.Refresh:
+-                new GetUnitData().execute(Common.apiRequestNotKeyed());
++                new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
+                 return true;
+             case R.id.Credentials:
+                 startDialogCreds();
+@@ -224,7 +245,6 @@
+             //pd.setTitle(R.string.wait);
+            // pd.show();
+             swipeRefreshLayout.setRefreshing(false);
+-
+         }
+ 
+         @Override
+@@ -246,6 +266,7 @@
+ 
+         @Override
+         protected void onPostExecute(String s) {
++            createJSON takeInput;
+             String timestamp;
+             if (!http.itHasConnection()) {
+                 Toast.makeText(getApplicationContext(),
+@@ -264,8 +285,14 @@
+                     //get time string for further archiving
+                     //for now it is just local variable with nothing to do
+                     timestamp = content.toString();
+-                    timestamp = timestamp.substring(timestamp.indexOf("created\":\""), timestamp.indexOf("Z"));
+-                    timestamp = timestamp.substring(10,timestamp.length());
++                    timestamp = timestamp.substring(timestamp.indexOf("created\":\""), timestamp.indexOf("Z")-4);
++                    timestamp = timestamp.replace("created\":\"","");
++                    Log.e("Time of recovery",timestamp);
++
++                    //start backup
++                    takeInput = new createJSON(getApplicationContext(), timestamp);
++                    takeInput.run();
++
+                     JSONObject contents = content.getJSONObject("content");
+ 
+                     //Iterate keys
+@@ -280,12 +307,13 @@
+                         if (idValues.contains("[")) {
+                             idValues = idValues.substring(2, idValues.indexOf(",") - 1);
+                         }
+-
+-                        int postitionOfSeparator = idValues.indexOf(";");
+-                        voltage = idValues.substring(0, postitionOfSeparator);
+-                        mass = idValues.substring(postitionOfSeparator + 1);
+-                        temp.add(unitOnePart(currID, mass, voltage));
+-                    }
++                            int postitionOfSeparator = idValues.indexOf(";");
++                            voltage = idValues.substring(0, postitionOfSeparator);
++                            mass = idValues.substring(postitionOfSeparator + 1);
++                            temp.add(unitOnePart(currID, mass, voltage));
++                            takeInput.putUnitData(currID,mass);
++                        }
++                    takeInput.saveLists();
+ 
+                     //inflate listView
+                     myInflater = new layoutAdapter(getApplicationContext(), temp);
+Index: app/src/main/java/com/example/koks/beehivescale/netGetter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/koks/beehivescale/netGetter.java	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/java/com/example/koks/beehivescale/netGetter.java	(date 1528124771693)
+@@ -16,8 +16,8 @@
+     private Context _context;
+     private static String stream;
+ 
+-    public netGetter(Context context) {
+-        this._context = context;
++    public netGetter(Context _context) {
++        this._context = _context;
+     }
+ 
+     public boolean itHasConnection() {
+@@ -34,29 +34,33 @@
+     }
+ 
+     public String getHTTPData(String urlStream) {
++
+         hasConnection = false;
+         try {
+             URL url = new URL(urlStream);
+             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
++
+             if (httpURLConnection.getResponseCode() == 200) {
+                 hasConnection = true;
+                 BufferedReader reader = new BufferedReader(
+                         new InputStreamReader(httpURLConnection.getInputStream()));
+                 StringBuilder sb = new StringBuilder();
++
+                 String line;
+                 while ((line = reader.readLine()) != null) {
+                     sb.append(line);
+                     stream = sb.toString();
+-                    httpURLConnection.disconnect();
+                 }
+             } else {
+                 //here we will run saved backup
+                 hasConnection = false;
+             }
++            httpURLConnection.disconnect();
++
+         } catch (MalformedURLException e) {
+             e.printStackTrace();
+         } catch (IOException e) {
+-            e.printStackTrace();
++            System.out.println("Error: "+ e);
+         }
+         return stream;
+     }
+Index: app/src/main/java/com/example/koks/beehivescale/SavingInfo.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/koks/beehivescale/SavingInfo.java	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/java/com/example/koks/beehivescale/SavingInfo.java	(date 1527693258119)
+@@ -8,7 +8,6 @@
+ import java.io.ObjectInputStream;
+ import java.io.ObjectOutputStream;
+ import java.util.HashMap;
+-import java.util.Properties;
+ 
+ public class SavingInfo {
+     private final static String FILE_NAME_ADDRESS = "base_map_backup.txt";
+@@ -37,7 +36,7 @@
+         return part;
+     }
+     //moram si izvuči iz filea cijeli Map
+-    //i onda u mapi naći koji kwy želim replaceati
++    //i onda u mapi naći koji koy želim replaceati
+     public void addNewUnitID(String original, String replaced) {
+         partOne.putAll(readFromFile(FILE_NAME_ADDRESS));
+         partOne.put(original,replaced);
+@@ -61,9 +60,7 @@
+                 out = readFromFile(FILE_NAME_ADDRESS).get(original);
+             }else {
+                 out = original;
+-
+-                Log.e("renamer of unitID","Don't have");
+-            }
++                }
+             return out;
+         } catch (Exception e) {
+             e.printStackTrace();
+Index: app/src/main/res/layout/bee_adapter.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/bee_adapter.xml	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/res/layout/bee_adapter.xml	(date 1527158805964)
+@@ -56,19 +56,19 @@
+             android:layout_alignParentTop="true"
+             android:layout_alignParentRight="true"
+             android:layout_alignParentEnd="true" />
+-    </RelativeLayout>
+ 
+-    <TextView
+-        android:id="@+id/postotakBatt"
+-        android:layout_width="15dp"
+-        android:layout_height="wrap_content"
+-        android:layout_alignParentEnd="true"
+-        android:layout_alignParentTop="true"
+-        android:layout_marginEnd="13dp"
+-        android:layout_marginTop="22dp"
+-        android:gravity="center"
+-        android:text="@string/_50"
+-        android:textAlignment="center"
+-        android:textColor="#ffffff"
+-        android:textSize="8dp" />
++        <TextView
++            android:id="@+id/postotakBatt"
++            android:layout_width="15dp"
++            android:layout_height="22sp"
++            android:textAlignment="center"
++            android:layout_alignBottom="@+id/statusBaterije"
++            android:layout_alignLeft="@+id/statusBaterije"
++            android:layout_alignRight="@+id/statusBaterije"
++            android:text="@string/_50"
++            android:textColor="#ffffff"
++            android:textSize="8sp" />
++    </RelativeLayout>
++
++
+ </RelativeLayout>
+\ No newline at end of file
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/strings.xml	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/res/values/strings.xml	(date 1527934530780)
+@@ -26,4 +26,11 @@
+        \n 4. Put cap back in its place and gently tight screws.
+        \n 5. Turn switch on.
+     </string>
++    <string name="_24h">24h</string>
++    <string name="week">WEEK</string>
++    <string name="_15_days">15 DAYS</string>
++    <string name="_25_05_2018">25.05.2018</string>
++    <string name="dayThis">Today</string>
++    <string name="days15">2 Weeks</string>
++    <string name="days7">Week</string>
+ </resources>
+Index: app/src/main/res/values-b+DE/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values-b+DE/strings.xml	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/res/values-b+DE/strings.xml	(date 1527934530804)
+@@ -21,4 +21,11 @@
+     <string name="desc01">TextView</string>
+     <string name="close">Close</string>
+     <string name="desc02" />
++    <string name="_24h">24h</string>
++    <string name="week">WEEK</string>
++    <string name="_15_days">15 DAYS</string>
++    <string name="_25_05_2018">25.05.2018</string>
++    <string name="dayThis">Today</string>
++    <string name="days15">2 Weeks</string>
++    <string name="Week">days7</string>
+ </resources>
+\ No newline at end of file
+Index: app/src/main/res/values-b+HR/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values-b+HR/strings.xml	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/res/values-b+HR/strings.xml	(date 1527934530738)
+@@ -27,4 +27,11 @@
+     \n 4. Vratiti poklopac i lagano dotegnuti vijke.
+     \n 5. Upaliti prekidač.
+ </string>
++    <string name="_24h">24h</string>
++    <string name="week">WEEK</string>
++    <string name="_15_days">15 DAYS</string>
++    <string name="_25_05_2018">25.05.2018</string>
++    <string name="dayThis">Today</string>
++    <string name="days15">2 Weeks</string>
++    <string name="Week">days7</string>
+ </resources>
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/src/main/AndroidManifest.xml	(date 1528121257610)
+@@ -24,6 +24,8 @@
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
++        <service android:name=".netGetterService"
++            android:enabled="true" />
+     </application>
+ 
+ </manifest>
+\ No newline at end of file
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/build.gradle	(revision 697ba602673ac91daf5d30ce175daff0fbfa95eb)
++++ app/build.gradle	(date 1527946110344)
+@@ -20,7 +20,10 @@
+     }
+ }
+ 
+-dependencies {
++dependencies{
++    implementation 'com.google.code.gson:gson:2.8.4'
++    implementation 'net.danlew:android.joda:2.9.9.4'
++    implementation 'com.jjoe64:graphview:4.2.2'
+     implementation fileTree(include: ['*.jar'], dir: 'libs')
+     implementation 'com.android.support:appcompat-v7:27.1.1'
+     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+diff --git app/src/main/res/mipmap-hdpi/crvana_prazno.png app/src/main/res/mipmap-hdpi/crvana_prazno.png
+index c730134ccbc6d260efaf10575ef8aa45d6ccf405..55b00bff98ae202d5b8cd493cb146a61ebc2dde3
+GIT binary patch
+literal 21380
+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
+
+diff --git app/src/main/res/mipmap-hdpi/zelena_polupuna.png app/src/main/res/mipmap-hdpi/zelena_polupuna.png
+index 777e1783aefd059cc9a2b7bd466727c9c1b7a337..02405ab9fa500a7fae49a5067d13f3562090ce36
+GIT binary patch
+literal 21433
+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
+I7T(eS1DaM5<^TWy
+
+diff --git app/src/main/res/mipmap-hdpi/zelena_skoropuna.png app/src/main/res/mipmap-hdpi/zelena_skoropuna.png
+index 01f4af8297dc05056d58f7a655244e5303137548..65bd2f9d0547af12945d6cd12af494a525b98890
+GIT binary patch
+literal 21432
+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
+H^p5!-+Y%JU
+
+diff --git .idea/caches/build_file_checksums.ser .idea/caches/build_file_checksums.ser
+index 9935d2bb4817478a5d47b2fc7be36e13211626cd..5fec96666dc5f65f473ae771549331a3491db558
+GIT binary patch
+literal 536
+zc${1FmVvdnh`~NNKUXg?FQq6yGexf?KR>5fFEb@IQ7^qHF(oHeub?PDD>b=9F91S2
+zm1gFoxMk*~I%lLNXBU^|7Q2L-Ts|(GuF1r}<i#MFTj`TnT;dMa8(f)}9Fm!vT3nKt
+zTj0aMpIeEdv4nx&Co8cmQNOe#Ge_SyvB0{bfPsNA`M~;ltAOqj1j*@v<n%lei!*@o
+ztn9ZA9u`Zu$jrdx#=w=6pP1s7m|T)y<jKHUl2MdeoROcCQc+;<zyJa~<s3j#0EpR2
+z7z7dv3SyE#PKSD{w1|Nz+G)*a@gHm)ArF`s7(iAt2<&>{#pAWQPV8yXE~&EUs+mA1
+z7N?e!Wagz8!!#B$)G@Gu)Xuw^u+Qc`d!BBBo>aKg;e{m(JSaB66<!fCb@6w5&9v#w
+zj!*tV92r38<m4wO=755>AhoC@Gqo6@c(EQ=#FXQOS456%e{(bY%-#|Pb!V%X(Bjmh
+z;u!Dz?BW=x@iB<#!7$^BY|qVphD|Il8#rgY`QcPo!XSu8_2*vZReKVa`fajJGk$hf
+HAgKZX@9Vrl
+
