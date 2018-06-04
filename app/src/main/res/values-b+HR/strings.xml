@@ -27,4 +27,11 @@
     \n 4. Vratiti poklopac i lagano dotegnuti vijke.
     \n 5. Upaliti prekidač.
 </string>
+    <string name="_24h">24h</string>
+    <string name="week">WEEK</string>
+    <string name="_15_days">15 DAYS</string>
+    <string name="_25_05_2018">25.05.2018</string>
+    <string name="dayThis">Today</string>
+    <string name="days15">2 Weeks</string>
+    <string name="Week">days7</string>
 </resources>

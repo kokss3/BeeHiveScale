@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
-import java.util.Properties;
 
 public class SavingInfo {
     private final static String FILE_NAME_ADDRESS = "base_map_backup.txt";
@@ -37,7 +36,7 @@ public class SavingInfo {
         return part;
     }
     //moram si izvuči iz filea cijeli Map
-    //i onda u mapi naći koji kwy želim replaceati
+    //i onda u mapi naći koji koy želim replaceati
     public void addNewUnitID(String original, String replaced) {
         partOne.putAll(readFromFile(FILE_NAME_ADDRESS));
         partOne.put(original,replaced);
@@ -61,9 +60,7 @@ public class SavingInfo {
                 out = readFromFile(FILE_NAME_ADDRESS).get(original);
             }else {
                 out = original;
-
-                Log.e("renamer of unitID","Don't have");
-            }
+                }
             return out;
         } catch (Exception e) {
             e.printStackTrace();

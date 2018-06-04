@@ -26,4 +26,11 @@
        \n 4. Put cap back in its place and gently tight screws.
        \n 5. Turn switch on.
     </string>
+    <string name="_24h">24h</string>
+    <string name="week">WEEK</string>
+    <string name="_15_days">15 DAYS</string>
+    <string name="_25_05_2018">25.05.2018</string>
+    <string name="dayThis">Today</string>
+    <string name="days15">2 Weeks</string>
+    <string name="days7">Week</string>
 </resources>

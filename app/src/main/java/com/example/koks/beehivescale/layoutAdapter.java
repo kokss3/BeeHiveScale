@@ -56,7 +56,7 @@ public class layoutAdapter extends BaseAdapter {
         parialRow = new SingleRow((ArrayList) getItem(position));
 
         //set unitID to textView
-         UnitID.setText(renameUnitID.readNewUnitID(parialRow.getUnit()));
+        UnitID.setText(renameUnitID.readNewUnitID(parialRow.getUnit()));
         MassValue.setText("" + String.valueOf(parialRow.getMass()) + " kg");
 
         double number = parialRow.getVolts() / 255;
@@ -64,15 +64,15 @@ public class layoutAdapter extends BaseAdapter {
         PercBatt.setText(String.valueOf(perc));
         number = number * 4.175;
 
-        if (number>3.95){
+        if (number>4){
             Battery.setImageResource(R.mipmap.zelena_puna);
-        } else if (number<=3.95 && number > 3.65) {
+        } else if (number<=4 && number > 3.8) {
             Battery.setImageResource(R.mipmap.zelena_skoropuna);
-        } else if (number<=3.65 && number > 3.3) {
+        } else if (number<=3.8 && number > 3.6) {
             Battery.setImageResource(R.mipmap.zelena_polupuna);
-        } else if (number <= 3.3 && number > 3.1) {
+        } else if (number <= 3.6 && number > 3.12) {
             Battery.setImageResource(R.mipmap.zuta_pola);
-        } else if (number <= 3.05) {
+        } else if (number <= 3.12) {
             PercBatt.setTextColor(Color.parseColor("#ff1818"));
             Battery.setImageResource(R.mipmap.crvana_prazno);
         }

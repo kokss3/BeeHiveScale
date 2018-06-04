@@ -13,7 +13,7 @@ public class Common {
         SavingFiles fileSaver = new SavingFiles(context);
 
         if (fileSaver.readFile(FILE_NAME_ADDRESS_ITEM) == "") {
-            MY_THING = "testis2";
+            MY_THING = "testis";
         }
 
         MY_THING = fileSaver.readFile(FILE_NAME_ADDRESS_ITEM);
@@ -28,7 +28,7 @@ public class Common {
         API_KEY = newKey;
     }
 
-    public static String apiRequestNotKeyed() {
+    public String apiRequestNotKeyed() {
         StringBuilder sb = new StringBuilder(API_LINK);
         sb.append(MY_THING);
         return sb.toString();

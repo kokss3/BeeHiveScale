@@ -16,8 +16,8 @@ public class netGetter {
     private Context _context;
     private static String stream;
 
-    public netGetter(Context context) {
-        this._context = context;
+    public netGetter(Context _context) {
+        this._context = _context;
     }
 
     public boolean itHasConnection() {
@@ -34,29 +34,33 @@ public class netGetter {
     }
 
     public String getHTTPData(String urlStream) {
+
         hasConnection = false;
         try {
             URL url = new URL(urlStream);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
             if (httpURLConnection.getResponseCode() == 200) {
                 hasConnection = true;
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(httpURLConnection.getInputStream()));
                 StringBuilder sb = new StringBuilder();
+
                 String line;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);
                     stream = sb.toString();
-                    httpURLConnection.disconnect();
                 }
             } else {
                 //here we will run saved backup
                 hasConnection = false;
             }
+            httpURLConnection.disconnect();
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: "+ e);
         }
         return stream;
     }

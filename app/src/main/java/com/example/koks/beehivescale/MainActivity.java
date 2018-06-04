@@ -1,8 +1,11 @@
 package com.example.koks.beehivescale;
 
 import android.app.Dialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -28,16 +30,17 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 public class MainActivity extends AppCompatActivity {
-    Context context = this;
+    private Context context = this;
     private Common produceAPI = new Common(context);
-    SavingFiles fileSaver = new SavingFiles(context);
+    private SavingFiles fileSaver = new SavingFiles(context);
     private ListView hiveInfo;
     private ArrayList<String> units = new ArrayList<>();
 
@@ -61,16 +64,34 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout=findViewById(R.id.sw_refresh);
         hiveInfo = findViewById(R.id.hive_info);
         produceAPI = new Common(context);
-        new GetUnitData().execute(Common.apiRequestNotKeyed());
+        new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
+        startService(new Intent(this, netGetterService.class));
 
         swipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        new GetUnitData().execute(Common.apiRequestNotKeyed());
+                        new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
                     }
                 }
         );
+        hiveInfo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final ArrayList e = (ArrayList<String>) parent.getAdapter().getItem(position);
+
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+                if (prev != null) {
+                    ft.remove(prev);
+                }
+                ft.addToBackStack(null);
+                graphDay dialogFragment = new graphDay();
+
+                dialogFragment.setID((String) e.get(0));
+                dialogFragment.show(ft, "dialog");
+            }
+        });
 
         hiveInfo.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -94,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.e("What to change with",changeItem.getText().toString());
                         }
 
-                        new GetUnitData().execute(Common.apiRequestNotKeyed());
+                        new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
                         dialog.cancel();
                     }
                 });
@@ -103,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         saveID.addNewUnitID(e.get(0), e.get(0));
-                        new GetUnitData().execute(Common.apiRequestNotKeyed());
+                        new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
                         dialog.cancel();
                     }
                 });
@@ -131,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Refresh:
-                new GetUnitData().execute(Common.apiRequestNotKeyed());
+                new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
                 return true;
             case R.id.Credentials:
                 startDialogCreds();
@@ -224,7 +245,6 @@ public class MainActivity extends AppCompatActivity {
             //pd.setTitle(R.string.wait);
            // pd.show();
             swipeRefreshLayout.setRefreshing(false);
-
         }
 
         @Override
@@ -246,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
+            createJSON takeInput;
             String timestamp;
             if (!http.itHasConnection()) {
                 Toast.makeText(getApplicationContext(),
@@ -264,8 +285,14 @@ public class MainActivity extends AppCompatActivity {
                     //get time string for further archiving
                     //for now it is just local variable with nothing to do
                     timestamp = content.toString();
-                    timestamp = timestamp.substring(timestamp.indexOf("created\":\""), timestamp.indexOf("Z"));
-                    timestamp = timestamp.substring(10,timestamp.length());
+                    timestamp = timestamp.substring(timestamp.indexOf("created\":\""), timestamp.indexOf("Z")-4);
+                    timestamp = timestamp.replace("created\":\"","");
+                    Log.e("Time of recovery",timestamp);
+
+                    //start backup
+                    takeInput = new createJSON(getApplicationContext(), timestamp);
+                    takeInput.run();
+
                     JSONObject contents = content.getJSONObject("content");
 
                     //Iterate keys
@@ -280,12 +307,13 @@ public class MainActivity extends AppCompatActivity {
                         if (idValues.contains("[")) {
                             idValues = idValues.substring(2, idValues.indexOf(",") - 1);
                         }
-
-                        int postitionOfSeparator = idValues.indexOf(";");
-                        voltage = idValues.substring(0, postitionOfSeparator);
-                        mass = idValues.substring(postitionOfSeparator + 1);
-                        temp.add(unitOnePart(currID, mass, voltage));
-                    }
+                            int postitionOfSeparator = idValues.indexOf(";");
+                            voltage = idValues.substring(0, postitionOfSeparator);
+                            mass = idValues.substring(postitionOfSeparator + 1);
+                            temp.add(unitOnePart(currID, mass, voltage));
+                            takeInput.putUnitData(currID,mass);
+                        }
+                    takeInput.saveLists();
 
                     //inflate listView
                     myInflater = new layoutAdapter(getApplicationContext(), temp);
