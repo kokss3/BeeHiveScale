@@ -5,22 +5,26 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.koks.beehivescale.base.Dweet;
+import com.example.koks.beehivescale.base.DweetDatabase;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 //here we get all data from dweet.io every 30 minutes
 public class netGetterService extends Service {
-
     private String rawData="none";
-    private Long timeToWait = 30L; //in minutes
+    JsonDecoder decoder = new JsonDecoder();
+    private Long timeToWait = 5L; //in minutes
 
     @Override
     public void onCreate() {
@@ -29,46 +33,31 @@ public class netGetterService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Thread getter = new Thread() {
-            boolean hasConnection;
             netGetter retrieverOfData = new netGetter(getApplicationContext());
-            Common dataForDweet = new Common(getApplicationContext());
+            Common dataForDweet = new Common();
 
             @Override
             public void run() {
+                DweetDatabase dataBase = new DweetDatabase(getApplicationContext());
                 while (true) {
+                    rawData = retrieverOfData.getHTTPData(dataForDweet.apiRequestNotKeyed());
+
                     try {
+
+                        List<Dweet> dweetList = decoder.process(rawData);
+                        dataBase.insertThing(dweetList);
+                        dataBase.insertDweet(dweetList);
+
                         System.out.println("Sleep for " + timeToWait + " mins!");
-
-                        Thread.sleep((timeToWait*60000));
-                    } catch (InterruptedException e) {
-                        System.out.println(e);
-                    }
-
-                rawData = retrieverOfData.getHTTPData(dataForDweet.apiRequestNotKeyed());
-                System.out.println("Out stream: "+ rawData);
-                    String timestamp= "";
-
-                    JSONObject jsonObj = null;
-                    try {
-                        jsonObj = new JSONObject(rawData);
-
-                    JSONArray with = jsonObj.getJSONArray("with");
-                    JSONObject content = with.getJSONObject(0);
-                        //get time string for further archiving
-                        //for now it is just local variable with nothing to do
-                        timestamp = content.toString();
-                        timestamp = timestamp.substring(timestamp.indexOf("created\":\""), timestamp.indexOf("Z")-4);
-                        timestamp = timestamp.replace("created\":\"","");
-                        Log.e("Time of recovery",timestamp);
+                        Thread.sleep((timeToWait * 60 * 1000));
 
                     } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                    //start backup
-                    createJSON takeInput = new createJSON(getApplicationContext(), timestamp);
-                    takeInput.run();
-
+                        e.printStackTrace();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };

@@ -12,7 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class netGetter {
-    boolean hasConnection;
+    public boolean hasConnection;
     private Context _context;
     private static String stream;
 

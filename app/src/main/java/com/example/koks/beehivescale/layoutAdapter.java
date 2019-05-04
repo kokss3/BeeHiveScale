@@ -13,7 +13,6 @@ import android.graphics.Color;
 import static android.view.View.inflate;
 
 public class layoutAdapter extends BaseAdapter {
-    private SingleRow parialRow;
     private TextView UnitID;
     private TextView MassValue;
     private TextView PercBatt;
@@ -45,7 +44,7 @@ public class layoutAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        SavingInfo renameUnitID = new SavingInfo(mContext);
+        //  SavingInfo renameUnitID = new SavingInfo(mContext);
         convertView = inflate(mContext, R.layout.bee_adapter, null);
         UnitID = convertView.findViewById(R.id.UnitID);
         MassValue = convertView.findViewById(R.id.mass_indicator);
@@ -53,14 +52,14 @@ public class layoutAdapter extends BaseAdapter {
         PercBatt = convertView.findViewById(R.id.postotakBatt);
 
         //get arrayList for one row: unitID, Mass, Volts
-        parialRow = new SingleRow((ArrayList) getItem(position));
+        //  parialRow = new SingleRow((ArrayList) getItem(position));
 
         //set unitID to textView
-        UnitID.setText(renameUnitID.readNewUnitID(parialRow.getUnit()));
-        MassValue.setText("" + String.valueOf(parialRow.getMass()) + " kg");
+        UnitID.setText("unit");
+        MassValue.setText("Mass kg");
 
-        double number = parialRow.getVolts() / 255;
-        int perc = (int)(((parialRow.getVolts()-184)/71)*100);
+        double number = 3.9;
+        int perc = (int) (number / 4.2) * 100;
         PercBatt.setText(String.valueOf(perc));
         number = number * 4.175;
 
