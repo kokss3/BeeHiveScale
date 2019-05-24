@@ -13,8 +13,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -42,73 +40,54 @@ public class MainActivity extends AppCompatActivity {
         startService(new Intent(this, netGetterService.class));
 
         swipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        //
-                    }
+                () -> {
+                    //
                 }
         );
-        hiveInfo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        hiveInfo.setOnItemClickListener((parent, view, position, id) -> {
 
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                Fragment prev = getFragmentManager().findFragmentByTag("dialog");
-                if (prev != null) {
-                    ft.remove(prev);
-                }
-                ft.addToBackStack(null);
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+            if (prev != null) {
+                ft.remove(prev);
             }
+            ft.addToBackStack(null);
         });
 
-        hiveInfo.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                final ArrayList<String> e;
-                final Dialog dialog = new Dialog(context);
-                dialog.setContentView(R.layout.renamer_of_unit);
-                Button Save_name_unit = dialog.findViewById(R.id.save_unit_name);
-                Button Reset_unit_old = dialog.findViewById(R.id.reset_to_old);
-                Button Cancel_name_unit = dialog.findViewById(R.id.cancel_unit_name);
-                final TextView originalItem = dialog.findViewById(R.id.originalName);
-                final EditText changeItem = dialog.findViewById(R.id.renameName);
-                e = (ArrayList<String>) parent.getAdapter().getItem(position);
-                originalItem.setText(e.get(0));
+        hiveInfo.setOnItemLongClickListener((parent, view, position, id) -> {
+            final ArrayList<String> e;
+            final Dialog dialog = new Dialog(context);
+            dialog.setContentView(R.layout.renamer_of_unit);
+            Button Save_name_unit = dialog.findViewById(R.id.save_unit_name);
+            Button Reset_unit_old = dialog.findViewById(R.id.reset_to_old);
+            Button Cancel_name_unit = dialog.findViewById(R.id.cancel_unit_name);
+            final TextView originalItem = dialog.findViewById(R.id.originalName);
+            final EditText changeItem = dialog.findViewById(R.id.renameName);
+            e = (ArrayList<String>) parent.getAdapter().getItem(position);
+            originalItem.setText(e.get(0));
 
-                Save_name_unit.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (changeItem.getText() != null) {
-                            //saveID.addNewUnitID(e.get(0), changeItem.getText().toString());
-                            Log.e("What to change with",changeItem.getText().toString());
-                        }
+            Save_name_unit.setOnClickListener(v -> {
+                if (changeItem.getText() != null) {
+                    //saveID.addNewUnitID(e.get(0), changeItem.getText().toString());
+                    Log.e("What to change with", changeItem.getText().toString());
+                }
 
-                        //    new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
-                        dialog.cancel();
-                    }
-                });
+                //    new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
+                dialog.cancel();
+            });
 
-                Reset_unit_old.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //saveID.addNewUnitID(e.get(0), e.get(0));
-                        //      new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
-                        dialog.cancel();
-                    }
-                });
+            Reset_unit_old.setOnClickListener(v -> {
+                //saveID.addNewUnitID(e.get(0), e.get(0));
+                //      new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
+                dialog.cancel();
+            });
 
-                Cancel_name_unit.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.cancel();
-                    }
-                });
-                dialog.show();
-                return true;
-            }
+            Cancel_name_unit.setOnClickListener(v -> dialog.cancel());
+            dialog.show();
+            return true;
         });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -150,28 +129,20 @@ public class MainActivity extends AppCompatActivity {
         Button SaveSettings = dialog.findViewById(R.id.save_settings);
         Button CanacelSettings = dialog.findViewById(R.id.cancel_setting);
 
-        SaveSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (UnitID.getText() != null) {
+        SaveSettings.setOnClickListener(v -> {
+            if (UnitID.getText() != null) {
 
-                    produceAPI.changeThing(UnitID.getText().toString());
-                }
-                if (UnitKey.getText() != null) {
-                    // produceAPI.changeKey(UnitKey.getText().toString());
-                }
-
-                dialog.cancel();
-
+                produceAPI.changeThing(UnitID.getText().toString());
             }
+            if (UnitKey.getText() != null) {
+                // produceAPI.changeKey(UnitKey.getText().toString());
+            }
+
+            dialog.cancel();
+
         });
 
-        CanacelSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.cancel();
-            }
-        });
+        CanacelSettings.setOnClickListener(v -> dialog.cancel());
         dialog.show();
     }
 
@@ -180,12 +151,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.setContentView(R.layout.info_dialog);
         dialog.show();
         Button closeInfoDialog = dialog.findViewById(R.id.closeInfo);
-        closeInfoDialog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.cancel();
-            }
-        });
+        closeInfoDialog.setOnClickListener(v -> dialog.cancel());
 
     }
 }

@@ -25,7 +25,7 @@ import java.util.Map;
 public class netGetterService extends Service {
     private String rawData="none";
     JsonDecoder decoder = new JsonDecoder();
-    private Long timeToWait = 1L; //in minutes
+    private Long timeToWait = 5L; //in minutes
 
     @Override
     public void onCreate() {
@@ -38,17 +38,19 @@ public class netGetterService extends Service {
                 DweetDatabase dataBase = new DweetDatabase(getApplicationContext());
                 while (true) {
                     rawData = retrieverOfData.getHTTPData(dataForDweet.apiRequestNotKeyed());
-                    System.out.println(rawData);
+                    System.out.println("RAW: " + rawData);
                     try {
+                        Dweet dweet = decoder.process(rawData);
+
+                        if (!dataBase.checkIfDateExist(dweet.getUnitDate())) {
+                            dataBase.insertDweet(dweet);
+                            dataBase.insertThing(dweet, dataBase.getId(dweet.getUnitDate()));
+
+                            System.out.println("New dweet! ");
+                        } else System.out.println("Nothing new! ");
+
                         System.out.println("Sleep for " + timeToWait + " mins!");
                         Thread.sleep((timeToWait * 60 * 1000));
-
-                        Dweet dweetList = decoder.process(rawData);
-
-                        dataBase.insertThing(dweetList);
-                        dataBase.insertDweet(dweetList);
-
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     } catch (ParseException e) {

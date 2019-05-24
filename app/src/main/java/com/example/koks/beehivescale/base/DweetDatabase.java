@@ -38,12 +38,12 @@ public class DweetDatabase extends SQLiteOpenHelper {
 
     private final static String EXEC_VALUE = "create table " +
             DWEET_TABLE + "(" +
-            DWEET_UNIT_ID + " varchar(32) primary key not null unique, " +
+            DWEET_UNIT_ID + " integer primary key autoincrement, " +
             DWEET_DATE + " datetime)";
 
     private final static String EXEC_THINGS = "create table " +
             THING_TABLE + "(" +
-            THING_UNIT_ID + " varchar(32)," +
+            THING_UNIT_ID + " integer," +
 
             THING_UNIT_NAME + " varchar(32), " +
             THING_MASS + " float(6,1), " +
@@ -114,6 +114,22 @@ public class DweetDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void insertThing(Dweet dweet, int id) throws SQLiteConstraintException {
+        ContentValues contentValues = new ContentValues();
+        List<Thing> things = dweet.getUnits();
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        for (Thing thing : things) {
+            contentValues.put(THING_UNIT_ID, id);
+            contentValues.put(THING_UNIT_NAME, thing.getUnitName());
+            contentValues.put(THING_MASS, thing.getMass());
+            contentValues.put(THING_VOLTAGE, thing.getVoltage());
+
+            db.insert(THING_TABLE, null, contentValues);
+        }
+        db.close();
+    }
+
     public void insertThing(Dweet dweet) throws SQLiteConstraintException {
         ContentValues contentValues = new ContentValues();
         List<Thing> things = dweet.getUnits();
@@ -130,6 +146,37 @@ public class DweetDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
+    //getting unit id by specific date
+    public Integer getId(Date date) {
+        Integer id = 0;
+        int index = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cd = null;
+
+        try {
+            cd = db.rawQuery("SELECT " + DWEET_UNIT_ID + " FROM " + DWEET_TABLE + " where date=?", new String[]{date.toString()});
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        if (cd != null) {
+            index = cd.getColumnIndex(DWEET_UNIT_ID);
+        } else {
+            System.out.println("Index is hardcoded");
+            index = 0;
+        }
+
+        while (cd.moveToNext()) {
+            id = cd.getInt(index);
+        }
+
+        cd.close();
+        db.close();
+
+        return id;
+    }
+
     public List<String> getUnits() {
         SQLiteDatabase db = this.getReadableDatabase();
         List<String> unitNames = new ArrayList<>();
@@ -140,12 +187,39 @@ public class DweetDatabase extends SQLiteOpenHelper {
 
     private Boolean isColumnPresent(String columnName) throws SQLiteException {
         SQLiteDatabase db = this.getReadableDatabase();
-
         return true;
-
     }
 
     public Boolean checkIfDateExist(Date testDate) {
-        return true;
+        Boolean check = false;
+        int i = 0;
+        int index = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cd = null;
+
+        try {
+            cd = db.rawQuery("SELECT " + DWEET_DATE + " FROM " + DWEET_TABLE + " where date=?", new String[]{testDate.toString()});
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        if (cd != null) {
+            index = cd.getColumnIndex(DWEET_DATE);
+        } else {
+            System.out.println("Index is hardcoded");
+            index = 0;
+        }
+
+        while (cd.moveToNext()) {
+            i = cd.getColumnCount();
+        }
+
+        if (i > 0) check = true;
+
+        cd.close();
+        db.close();
+
+        return check;
     }
 }

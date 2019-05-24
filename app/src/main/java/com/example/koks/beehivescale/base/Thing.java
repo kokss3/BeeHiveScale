@@ -42,9 +42,9 @@ public class Thing {
     @Override
     public String toString() {
         return "Thing{" +
-                "id" + id + ", " +
-                "unitName='" + unitName + ", " +
-                ", mass=" + mass +
+                "id='" + id + "', " +
+                "unitName='" + unitName + "', " +
+                "mass=" + mass +
                 ", voltage=" + voltage +
                 '}';
     }

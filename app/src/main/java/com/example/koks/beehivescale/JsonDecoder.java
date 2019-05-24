@@ -10,11 +10,9 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class JsonDecoder {
 
@@ -41,12 +39,14 @@ public class JsonDecoder {
 
         List<Thing> things = new ArrayList<>();
         while (iter.hasNext()) {
-            Thing thing = new Thing();
-            String value = a.getString(thing.getUnitName());
 
-            thing.setUnitName(iter.next());
+            Thing thing = new Thing();
+            String name = iter.next();
+            String value = a.getString(name);
+            thing.setUnitName(name);
             thing.setVoltage(Float.valueOf(value.substring(0, value.indexOf(";"))));
             thing.setMass(Float.valueOf(value.substring(value.indexOf(";") + 1)));
+
             things.add(thing);
         }
 
