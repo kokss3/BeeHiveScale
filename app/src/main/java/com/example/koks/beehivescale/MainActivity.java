@@ -26,14 +26,12 @@ public class MainActivity extends AppCompatActivity {
     private Context context = this;
     private Common produceAPI;
     private ListView hiveInfo;
-    private ArrayList<String> units = new ArrayList<>();
 
     SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        //final SavingInfo saveID = new SavingInfo(context);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
@@ -41,21 +39,19 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout=findViewById(R.id.sw_refresh);
         hiveInfo = findViewById(R.id.hive_info);
         produceAPI = new Common();
-        //new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
         startService(new Intent(this, netGetterService.class));
 
         swipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        //               new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
+                        //
                     }
                 }
         );
         hiveInfo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final ArrayList e = (ArrayList<String>) parent.getAdapter().getItem(position);
 
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 Fragment prev = getFragmentManager().findFragmentByTag("dialog");

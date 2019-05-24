@@ -10,6 +10,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import android.graphics.Color;
 
+import com.example.koks.beehivescale.base.DweetDatabase;
+
 import static android.view.View.inflate;
 
 public class layoutAdapter extends BaseAdapter {
@@ -20,8 +22,10 @@ public class layoutAdapter extends BaseAdapter {
     private Context mContext;
     private View view;
     private ArrayList<ArrayList<String>> beeInfoList;
+    private DweetDatabase database;
 
     public layoutAdapter(Context c, ArrayList<ArrayList<String>> beeInfoList) {
+
         this.beeInfoList = beeInfoList;
         this.mContext = c;
         view = inflate(mContext, R.layout.bee_adapter, null);
@@ -44,19 +48,17 @@ public class layoutAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        //  SavingInfo renameUnitID = new SavingInfo(mContext);
+        database = new DweetDatabase(mContext);
         convertView = inflate(mContext, R.layout.bee_adapter, null);
         UnitID = convertView.findViewById(R.id.UnitID);
         MassValue = convertView.findViewById(R.id.mass_indicator);
         Battery = convertView.findViewById(R.id.statusBaterije);
         PercBatt = convertView.findViewById(R.id.postotakBatt);
 
-        //get arrayList for one row: unitID, Mass, Volts
-        //  parialRow = new SingleRow((ArrayList) getItem(position));
-
         //set unitID to textView
         UnitID.setText("unit");
         MassValue.setText("Mass kg");
+
 
         double number = 3.9;
         int perc = (int) (number / 4.2) * 100;

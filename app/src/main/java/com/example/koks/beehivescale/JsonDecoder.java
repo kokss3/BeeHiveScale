@@ -1,6 +1,7 @@
 package com.example.koks.beehivescale;
 
 import com.example.koks.beehivescale.base.Dweet;
+import com.example.koks.beehivescale.base.Thing;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,9 +25,9 @@ public class JsonDecoder {
      * objects to return are:
      * "unitname", "mass", "voltage"
      */
-    public List<Dweet> process(String obj) throws JSONException, ParseException {
-        List<Dweet> list = new ArrayList();
+    public Dweet process(String obj) throws JSONException, ParseException {
         Dweet dweet = new Dweet();
+
 
         JSONObject jsonObj = new JSONObject(obj);
         JSONArray with = jsonObj.getJSONArray("with");
@@ -34,26 +35,23 @@ public class JsonDecoder {
 
         dweet.setUnitDate(sdf.parse(with.getJSONObject(0).getString("created")));
 
-        System.out.println(dweet.getUnitDate());
-
         JSONObject a = with.getJSONObject(0).getJSONObject("content");
 
         Iterator<String> iter = a.keys();
 
+        List<Thing> things = new ArrayList<>();
         while (iter.hasNext()) {
-            Dweet tempDweet = new Dweet();
+            Thing thing = new Thing();
+            String value = a.getString(thing.getUnitName());
 
-            tempDweet.setUnitDate(dweet.getUnitDate());
-
-            tempDweet.setUnitName(iter.next());
-
-            String value = a.getString(tempDweet.getUnitName());
-
-            tempDweet.setUnitVoltage(value.substring(0, value.indexOf(";")));
-
-            tempDweet.setUnitMass(value.substring(value.indexOf(";") + 1));
-            list.add(tempDweet);
+            thing.setUnitName(iter.next());
+            thing.setVoltage(Float.valueOf(value.substring(0, value.indexOf(";"))));
+            thing.setMass(Float.valueOf(value.substring(value.indexOf(";") + 1)));
+            things.add(thing);
         }
-        return list;
+
+        dweet.setUnits(things);
+
+        return dweet;
     }
 }

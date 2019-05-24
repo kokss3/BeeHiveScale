@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -24,15 +25,47 @@ import java.util.Map;
 public class netGetterService extends Service {
     private String rawData="none";
     JsonDecoder decoder = new JsonDecoder();
-    private Long timeToWait = 5L; //in minutes
+    private Long timeToWait = 1L; //in minutes
 
     @Override
     public void onCreate() {
+        Thread getter = new Thread() {
+            netGetter retrieverOfData = new netGetter(getApplicationContext());
+            Common dataForDweet = new Common();
+
+            @Override
+            public void run() {
+                DweetDatabase dataBase = new DweetDatabase(getApplicationContext());
+                while (true) {
+                    rawData = retrieverOfData.getHTTPData(dataForDweet.apiRequestNotKeyed());
+                    System.out.println(rawData);
+                    try {
+                        System.out.println("Sleep for " + timeToWait + " mins!");
+                        Thread.sleep((timeToWait * 60 * 1000));
+
+                        Dweet dweetList = decoder.process(rawData);
+
+                        dataBase.insertThing(dweetList);
+                        dataBase.insertDweet(dweetList);
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        getter.start();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Thread getter = new Thread() {
+      /*  Thread getter = new Thread() {
             netGetter retrieverOfData = new netGetter(getApplicationContext());
             Common dataForDweet = new Common();
 
@@ -43,10 +76,11 @@ public class netGetterService extends Service {
                     rawData = retrieverOfData.getHTTPData(dataForDweet.apiRequestNotKeyed());
 
                     try {
+                        Dweet dweetList = decoder.process(rawData);
 
-                        List<Dweet> dweetList = decoder.process(rawData);
                         dataBase.insertThing(dweetList);
                         dataBase.insertDweet(dweetList);
+
 
                         System.out.println("Sleep for " + timeToWait + " mins!");
                         Thread.sleep((timeToWait * 60 * 1000));
@@ -63,6 +97,7 @@ public class netGetterService extends Service {
         };
 
         getter.start();
+      */
         return START_STICKY;
         }
 

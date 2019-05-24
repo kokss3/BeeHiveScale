@@ -1,37 +1,27 @@
 package com.example.koks.beehivescale.base;
 
 import java.util.Date;
+import java.util.List;
 
 public class Dweet {
-    private String unitName;
-    private String unitMass;
-    private String unitAvatar;
-    private String unitVoltage;
+    private List<Thing> units;
     private Date unitDate;
 
-
-    public String getUnitName() {
-        return unitName;
+    public Dweet() {
+        super();
     }
 
-    public void setUnitName(String unitName) {
-        this.unitName = unitName;
+    public Dweet(List<Thing> things, Date unitDate) {
+        this.unitDate = unitDate;
+        this.units = things;
     }
 
-    public String getUnitMass() {
-        return unitMass;
+    public List<Thing> getUnits() {
+        return units;
     }
 
-    public void setUnitMass(String unitMass) {
-        this.unitMass = unitMass;
-    }
-
-    public String getUnitAvatar() {
-        return unitAvatar;
-    }
-
-    public void setUnitAvatar(String unitAvatar) {
-        this.unitAvatar = unitAvatar;
+    public void setUnits(List<Thing> units) {
+        this.units = units;
     }
 
     public Date getUnitDate() {
@@ -42,11 +32,11 @@ public class Dweet {
         this.unitDate = unitDate;
     }
 
-    public String getUnitVoltage() {
-        return unitVoltage;
-    }
-
-    public void setUnitVoltage(String unitVoltage) {
-        this.unitVoltage = unitVoltage;
+    @Override
+    public String toString() {
+        return "Dweet{" +
+                "units=" + units +
+                ", unitDate=" + unitDate +
+                '}';
     }
 }

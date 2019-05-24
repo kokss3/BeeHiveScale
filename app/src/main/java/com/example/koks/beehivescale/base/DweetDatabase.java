@@ -3,7 +3,9 @@ package com.example.koks.beehivescale.base;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.text.ParseException;
@@ -15,26 +17,48 @@ import java.util.Locale;
 
 public class DweetDatabase extends SQLiteOpenHelper {
 
+    private final static int VERSION = 1;
+
     private final static String DATABASE_NAME = "DweetDB.db";
-    private final static String TABLE_DWEET = "dweet_table";
-    private final static String COLUMN_ID = "date";
-    private final static String COLUMN_NAME = "name";
-    private final static String COLUMN_MASS = "mass";
-    private final static String TABLE_THING = "thing_table";
-    private final static String COLUMN_UNIT_ID = "unit_name";
-    private final static String COLUMN_AVATAR = "avatar";
-    public final static String EXEC_UNITS = "create table " +
-            TABLE_THING + "(" +
-            COLUMN_UNIT_ID + " varchar(32) primary key, " +
-            COLUMN_AVATAR + " varchar(255));";
-    private final static int VERSION = 3;
+
+    private final static String DWEET_TABLE = "dweet_table";
+    private final static String DWEET_UNIT_ID = "id";
+    private final static String DWEET_DATE = "date";
+
+    private final static String THING_TABLE = "thing_table";
+    private final static String THING_UNIT_ID = "id";
+    private final static String THING_UNIT_NAME = "unit_id";
+    private final static String THING_MASS = "mass";
+    private final static String THING_VOLTAGE = "voltage";
+
+    private final static String AVATAR_TABLE = "avatar_table";
+    private final static String AVATAR_UNIT_ID = "unit_id";
+    private final static String AVATAR_AVATAR = "avatar";
+
 
     private final static String EXEC_VALUE = "create table " +
-            TABLE_DWEET + "(" +
-            COLUMN_ID + " datetime primary key not null, " +
-            COLUMN_NAME + " varchar(32), " +
-            COLUMN_MASS + " float(6,1)) ";
-    private Dweet dweet = new Dweet();
+            DWEET_TABLE + "(" +
+            DWEET_UNIT_ID + " varchar(32) primary key not null unique, " +
+            DWEET_DATE + " datetime)";
+
+    private final static String EXEC_THINGS = "create table " +
+            THING_TABLE + "(" +
+            THING_UNIT_ID + " varchar(32)," +
+
+            THING_UNIT_NAME + " varchar(32), " +
+            THING_MASS + " float(6,1), " +
+            THING_VOLTAGE + " float(2,2), foreign key(" +
+            THING_UNIT_ID + ") references " +
+            DWEET_TABLE + "(" +
+            DWEET_UNIT_ID + "), foreign key (" +
+            THING_UNIT_NAME + ") references " +
+            AVATAR_TABLE + "(" +
+            AVATAR_UNIT_ID + "))";
+
+    private final static String EXEC_AVATAR = "create table " +
+            AVATAR_TABLE + "(" +
+            AVATAR_UNIT_ID + " varchar(32), " +
+            AVATAR_AVATAR + " varchar(255))";
 
     public DweetDatabase(Context context) {
         super(context, DATABASE_NAME, null, VERSION);
@@ -43,62 +67,85 @@ public class DweetDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(EXEC_VALUE);
-        db.execSQL(EXEC_UNITS);
+        db.execSQL(EXEC_THINGS);
+        db.execSQL(EXEC_AVATAR);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //String modifyTable = "alter table "+TABLE_DWEET+ "add "+dweet.getThings().get("unit")+" varchar(64)";
-        //db.execSQL(modifyTable);
     }
 
-    public void insertThing(List<Dweet> dweet) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        List<String> names = new ArrayList<>();
-        ContentValues contentValues = new ContentValues();
-
-        for (Dweet dt : dweet)
-            contentValues.put(COLUMN_UNIT_ID, dt.getUnitName());
-
-        db.insert(TABLE_THING, null, contentValues);
-        db.close();
-    }
-
-    public void insertThing(String unitID, String avatar) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_UNIT_ID, unitID);
-        contentValues.put(COLUMN_AVATAR, avatar);
-        db.insert(TABLE_THING, null, contentValues);
-        db.close();
-    }
-
-    public void insertDweet(List<Dweet> dweets) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-
-        for (Dweet dweet : dweets) {
-            contentValues.put(COLUMN_ID, dweet.getUnitDate().toString());
-            contentValues.put(COLUMN_MASS, dweet.getUnitMass());
-        }
-        db.insert(TABLE_DWEET, null, contentValues);
-        db.close();
-    }
-
-    public Date retriveDate(Date testDate) throws ParseException {
-        SQLiteDatabase db = this.getReadableDatabase();
+    public Dweet getDweet(Date date) throws ParseException {
+        String query = "select " +
+                THING_TABLE + "." +
+                THING_VOLTAGE + ", " +
+                THING_TABLE + "." +
+                THING_MASS + ", " +
+                AVATAR_TABLE + "." +
+                AVATAR_AVATAR + ", " +
+                AVATAR_TABLE + "." +
+                AVATAR_UNIT_ID + " from " +
+                THING_TABLE + " inner join " +
+                AVATAR_TABLE + " on " +
+                THING_TABLE + "." +
+                THING_UNIT_NAME + " = " +
+                AVATAR_TABLE + "." +
+                AVATAR_UNIT_ID + " where " +
+                DWEET_DATE + " = " + date.toString();
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Dweet dweet = new Dweet();
 
-        Cursor cd = db.query(TABLE_THING, null,
-                null, null, null, null, null);
+        Cursor cd1 = db.rawQuery(query, null);
 
-        String date = "";
-        while (cd.moveToNext()) {
-            int cid = cd.getColumnIndex(testDate.toString());
-            date = cd.getString(cid);
+        Cursor cd = db.query(THING_TABLE, new String[]{THING_MASS, THING_VOLTAGE, AVATAR_UNIT_ID, AVATAR_AVATAR, DWEET_DATE}, null, null, null, null, null);
+
+
+        return dweet;
+    }
+
+    public void insertDweet(Dweet dweet) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(DWEET_DATE, dweet.getUnitDate().toString());
+        db.insert(DWEET_TABLE, null, contentValues);
+
+        db.close();
+    }
+
+    public void insertThing(Dweet dweet) throws SQLiteConstraintException {
+        ContentValues contentValues = new ContentValues();
+        List<Thing> things = dweet.getUnits();
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        for (Thing thing : things) {
+            contentValues.put(THING_UNIT_ID, thing.getId());
+            contentValues.put(THING_UNIT_NAME, thing.getUnitName());
+            contentValues.put(THING_MASS, thing.getMass());
+            contentValues.put(THING_VOLTAGE, thing.getVoltage());
+
+            db.insert(THING_TABLE, null, contentValues);
         }
         db.close();
+    }
 
-        return dateFormat.parse(date);
+    public List<String> getUnits() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<String> unitNames = new ArrayList<>();
+
+        db.close();
+        return unitNames;
+    }
+
+    private Boolean isColumnPresent(String columnName) throws SQLiteException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        return true;
+
+    }
+
+    public Boolean checkIfDateExist(Date testDate) {
+        return true;
     }
 }
