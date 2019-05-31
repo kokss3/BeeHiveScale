@@ -1,0 +1,16 @@
+dweet
+id1	date
+id2	date
+
+things
+id1 	unit1, mass, volt	
+id1	unit2, mass, volt
+id1	unit3, mass, volt
+id2 	unit1, mass, volt
+id2	unit2, mass, volt
+id2	unit3, mass, volt
+
+avatar
+unit1	avatar
+unit2	avatar
+unit3 	avatar

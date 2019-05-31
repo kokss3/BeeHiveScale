@@ -14,13 +14,11 @@ import java.util.List;
 
 import android.graphics.Color;
 
-import com.example.koks.beehivescale.base.DweetDatabase;
 import com.example.koks.beehivescale.base.Thing;
 
 import static android.view.View.inflate;
 
 public class LayoutAdapter extends BaseAdapter {
-    private DweetDatabase database;
     private TextView UnitID;
     private TextView MassValue;
     private TextView PercBatt;
@@ -28,6 +26,7 @@ public class LayoutAdapter extends BaseAdapter {
     private Context mContext;
     private View view;
     private List<Thing> beeInfoList;
+    LayoutInflater inflater;
 
     public LayoutAdapter(Context context, List<Thing> beeInfoList) {
         this.beeInfoList = beeInfoList;
@@ -53,24 +52,26 @@ public class LayoutAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        database = new DweetDatabase(mContext);
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View newCV = convertView;
+        inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        convertView = inflater.inflate(R.layout.bee_adapter, null, true);
+        if (newCV == null) {
+            newCV = inflater.inflate(R.layout.bee_adapter, null);
 
-        UnitID = convertView.findViewById(R.id.UnitID);
-        MassValue = convertView.findViewById(R.id.mass_indicator);
-        Battery = convertView.findViewById(R.id.statusBaterije);
-        PercBatt = convertView.findViewById(R.id.postotakBatt);
-
+            UnitID = newCV.findViewById(R.id.UnitID);
+            MassValue = newCV.findViewById(R.id.mass_indicator);
+            Battery = newCV.findViewById(R.id.statusBaterije);
+            PercBatt = newCV.findViewById(R.id.postotakBatt);
+        }
         //set unitID to textView
-        UnitID.setText("");
-        MassValue.setText("Mass kg");
+        UnitID.setText(beeInfoList.get(position).getUnitName());
+        MassValue.setText(String.valueOf(beeInfoList.get(position).getMass()));
 
-        double number = 3.9;
-        int perc = (int) (number / 4.2) * 100;
-        PercBatt.setText(String.valueOf(perc));
+        double number = beeInfoList.get(position).getVoltage() / 255;
+        int perc = (int) ((1 - ((4.2 - (number * 4.175)) / 1.175)) * 100);
         number = number * 4.175;
+
+        PercBatt.setText(String.valueOf(perc));
 
         if (number>4){
             Battery.setImageResource(R.mipmap.zelena_puna);
@@ -78,12 +79,12 @@ public class LayoutAdapter extends BaseAdapter {
             Battery.setImageResource(R.mipmap.zelena_skoropuna);
         } else if (number<=3.8 && number > 3.6) {
             Battery.setImageResource(R.mipmap.zelena_polupuna);
-        } else if (number <= 3.6 && number > 3.12) {
+        } else if (number <= 3.6 && number > 3.2) {
             Battery.setImageResource(R.mipmap.zuta_pola);
-        } else if (number <= 3.12) {
+        } else if (number <= 3.2) {
             PercBatt.setTextColor(Color.parseColor("#ff1818"));
             Battery.setImageResource(R.mipmap.crvana_prazno);
         }
-        return convertView;
+        return newCV;
     }
 }

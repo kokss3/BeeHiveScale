@@ -18,10 +18,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.koks.beehivescale.base.Dweet;
 import com.example.koks.beehivescale.base.DweetDatabase;
 import com.example.koks.beehivescale.base.Thing;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,16 +39,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         startService(new Intent(this, netGetterService.class));
+        database = new DweetDatabase(this);
+
+        Dweet dweet;
 
         try {
-            temp = database.getLastDweet().getUnits();
-            System.out.println("Thing list: " + temp);
-
-            Layout = new LayoutAdapter(context, temp);
-            System.out.println("No Exception");
-        } catch (ParseException e) {
-            System.out.println(e);
-            System.out.println("ParseException");
+            System.out.println("Try LastDweet ");
+            dweet = database.getLastDweet();
+            temp = dweet.getUnits();
         } catch (NullPointerException e) {
             System.out.println(e);
             System.out.println("NullPointException");
@@ -59,10 +57,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         swipeRefreshLayout=findViewById(R.id.sw_refresh);
+
         hiveInfo = findViewById(R.id.hive_info);
-
-
+        Layout = new LayoutAdapter(context, temp);
         hiveInfo.setAdapter(Layout);
+
         swipeRefreshLayout.setOnRefreshListener(
                 () -> {
 
@@ -149,13 +148,11 @@ public class MainActivity extends AppCompatActivity {
 
         SaveSettings.setOnClickListener(v -> {
             if (UnitID.getText() != null) {
-
             }
             if (UnitKey.getText() != null) {
             }
 
             dialog.cancel();
-
         });
 
         CanacelSettings.setOnClickListener(v -> dialog.cancel());
@@ -168,6 +165,5 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
         Button closeInfoDialog = dialog.findViewById(R.id.closeInfo);
         closeInfoDialog.setOnClickListener(v -> dialog.cancel());
-
     }
 }

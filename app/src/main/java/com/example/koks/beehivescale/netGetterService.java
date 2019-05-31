@@ -37,8 +37,8 @@ public class netGetterService extends Service {
             public void run() {
                 DweetDatabase dataBase = new DweetDatabase(getApplicationContext());
                 while (true) {
+
                     rawData = retrieverOfData.getHTTPData(dataForDweet.apiRequestNotKeyed());
-                    System.out.println("RAW: " + rawData);
                     try {
                         Dweet dweet = decoder.process(rawData);
 
@@ -49,8 +49,6 @@ public class netGetterService extends Service {
                             System.out.println("New dweet! ");
                         } else System.out.println("Nothing new! ");
 
-                        System.out.println("Dweet got: " + dataBase.getDweet(dweet.getUnitDate()));
-
                         System.out.println("Sleep for " + timeToWait + " mins!");
                         Thread.sleep((timeToWait * 60 * 1000));
                     } catch (JSONException e) {
@@ -58,6 +56,8 @@ public class netGetterService extends Service {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
                 }
