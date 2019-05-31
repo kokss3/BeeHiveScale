@@ -4,6 +4,7 @@ public class Thing {
 
     private Integer id;
     private String unitName;
+    private String avatar;
     private Float mass;
     private Float voltage;
 
@@ -21,6 +22,14 @@ public class Thing {
 
     public void setUnitName(String unitName) {
         this.unitName = unitName;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public Float getMass() {
@@ -44,6 +53,7 @@ public class Thing {
         return "Thing{" +
                 "id='" + id + "', " +
                 "unitName='" + unitName + "', " +
+                "avatar='" + "', " +
                 "mass=" + mass +
                 ", voltage=" + voltage +
                 '}';

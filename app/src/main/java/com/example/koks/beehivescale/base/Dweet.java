@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Dweet {
+    private Integer id;
     private List<Thing> units;
     private Date unitDate;
 
@@ -14,6 +15,14 @@ public class Dweet {
     public Dweet(List<Thing> things, Date unitDate) {
         this.unitDate = unitDate;
         this.units = things;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public List<Thing> getUnits() {
@@ -35,7 +44,8 @@ public class Dweet {
     @Override
     public String toString() {
         return "Dweet{" +
-                "units=" + units +
+                "id=" + id +
+                ", units=" + units +
                 ", unitDate=" + unitDate +
                 '}';
     }

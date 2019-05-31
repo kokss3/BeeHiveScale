@@ -49,6 +49,8 @@ public class netGetterService extends Service {
                             System.out.println("New dweet! ");
                         } else System.out.println("Nothing new! ");
 
+                        System.out.println("Dweet got: " + dataBase.getDweet(dweet.getUnitDate()));
+
                         System.out.println("Sleep for " + timeToWait + " mins!");
                         Thread.sleep((timeToWait * 60 * 1000));
                     } catch (JSONException e) {
@@ -67,39 +69,7 @@ public class netGetterService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-      /*  Thread getter = new Thread() {
-            netGetter retrieverOfData = new netGetter(getApplicationContext());
-            Common dataForDweet = new Common();
 
-            @Override
-            public void run() {
-                DweetDatabase dataBase = new DweetDatabase(getApplicationContext());
-                while (true) {
-                    rawData = retrieverOfData.getHTTPData(dataForDweet.apiRequestNotKeyed());
-
-                    try {
-                        Dweet dweetList = decoder.process(rawData);
-
-                        dataBase.insertThing(dweetList);
-                        dataBase.insertDweet(dweetList);
-
-
-                        System.out.println("Sleep for " + timeToWait + " mins!");
-                        Thread.sleep((timeToWait * 60 * 1000));
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-
-        getter.start();
-      */
         return START_STICKY;
         }
 

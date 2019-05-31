@@ -75,33 +75,118 @@ public class DweetDatabase extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-    public Dweet getDweet(Date date) throws ParseException {
-        String query = "select " +
-                THING_TABLE + "." +
-                THING_VOLTAGE + ", " +
-                THING_TABLE + "." +
-                THING_MASS + ", " +
-                AVATAR_TABLE + "." +
-                AVATAR_AVATAR + ", " +
-                AVATAR_TABLE + "." +
-                AVATAR_UNIT_ID + " from " +
-                THING_TABLE + " inner join " +
-                AVATAR_TABLE + " on " +
-                THING_TABLE + "." +
-                THING_UNIT_NAME + " = " +
-                AVATAR_TABLE + "." +
-                AVATAR_UNIT_ID + " where " +
-                DWEET_DATE + " = " + date.toString();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-        SQLiteDatabase db = this.getReadableDatabase();
+    public Dweet getLastDweet() throws IllegalStateException, NullPointerException, ParseException {
+        System.out.println("GetLastDweet");
+
         Dweet dweet = new Dweet();
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Thing> thingList = new ArrayList<>();
 
-        Cursor cd1 = db.rawQuery(query, null);
+        // select date from dweet_table order by id desc LIMIT 1;
+        String query = "select " + THING_UNIT_NAME + ", " + THING_UNIT_ID + ", " + THING_MASS + ", " + THING_VOLTAGE +
+                " from " + THING_TABLE + " order by " + THING_UNIT_ID + " desc limit 1";
 
-        Cursor cd = db.query(THING_TABLE, new String[]{THING_MASS, THING_VOLTAGE, AVATAR_UNIT_ID, AVATAR_AVATAR, DWEET_DATE}, null, null, null, null, null);
+        Cursor things = db.rawQuery(query, null);
 
+        if (things != null) {
+            while (things.moveToNext()) {
+                Thing thing = new Thing();
+                thing.setId(things.getInt(things.getColumnIndex(THING_UNIT_ID)));
+                dweet.setId(things.getInt(things.getColumnIndex(THING_UNIT_ID)));
+                thing.setMass(things.getFloat(things.getColumnIndex(THING_MASS)));
+                thing.setVoltage(things.getFloat(things.getColumnIndex(THING_VOLTAGE)));
+                thing.setUnitName(things.getString(things.getColumnIndex(THING_UNIT_NAME)));
 
+                thingList.add(thing);
+            }
+        }
+
+        String getDateAndID = "select date from dweet_table where id=?";
+
+        Cursor date = db.rawQuery(getDateAndID, new String[]{dweet.getId().toString()});
+
+        if (date != null) {
+            while (date.moveToNext()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+                dweet.setUnitDate(sdf.parse(date.getString(date.getColumnIndex(DWEET_DATE))));
+            }
+        }
+
+        for (int i = 0; i < thingList.size(); i++) {
+            String newQuery = "select " + AVATAR_AVATAR + " from " + AVATAR_TABLE + " where unit_id=?";
+            Cursor avatar = db.rawQuery(newQuery, new String[]{thingList.get(i).getUnitName()});
+
+            if (avatar != null) {
+                while (avatar.moveToNext()) {
+                    thingList.get(i).setAvatar(avatar.getString(avatar.getColumnIndex(AVATAR_AVATAR)));
+                }
+            }
+            avatar.close();
+        }
+
+        System.out.println("Last thing is: " + thingList);
+        dweet.setUnits(thingList);
+        things.close();
+        db.close();
         return dweet;
+
+    }
+
+
+    public Dweet getDweet(Date date) throws IllegalStateException, NullPointerException {
+        Dweet dweet = new Dweet();
+        dweet.setId(getId(date));
+        dweet.setUnitDate(date);
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ArrayList<Thing> thingList = new ArrayList<>();
+
+        String query = "select " + THING_UNIT_NAME + ", " + THING_UNIT_ID + ", " + THING_MASS + ", "
+                + THING_VOLTAGE + " from " + THING_TABLE + " where id=?";
+
+        Cursor things = db.rawQuery(query, new String[]{dweet.getId().toString()});
+
+        if (things != null) {
+            while (things.moveToNext()) {
+                Thing thing = new Thing();
+                thing.setId(things.getInt(things.getColumnIndex(THING_UNIT_ID)));
+                thing.setMass(things.getFloat(things.getColumnIndex(THING_MASS)));
+                thing.setVoltage(things.getFloat(things.getColumnIndex(THING_VOLTAGE)));
+                thing.setUnitName(things.getString(things.getColumnIndex(THING_UNIT_NAME)));
+
+                thingList.add(thing);
+            }
+        }
+
+        for (int i = 0; i < thingList.size(); i++) {
+            String newQuery = "select " + AVATAR_AVATAR + " from " + AVATAR_TABLE + " where unit_id=?";
+
+            Cursor avatar = db.rawQuery(newQuery, new String[]{thingList.get(i).getUnitName()});
+
+            if (avatar != null) {
+                while (avatar.moveToNext()) {
+                    thingList.get(i).setAvatar(avatar.getString(avatar.getColumnIndex(AVATAR_AVATAR)));
+                }
+            }
+            avatar.close();
+        }
+
+        System.out.println("Thing is: " + thingList);
+        dweet.setUnits(thingList);
+        things.close();
+        db.close();
+        return dweet;
+    }
+
+    public void insertAvatar(Thing thing) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(AVATAR_AVATAR, thing.getAvatar());
+
+        db.update(AVATAR_TABLE, contentValues, AVATAR_UNIT_ID, new String[]{thing.getUnitName()});
+
+        db.close();
     }
 
     public void insertDweet(Dweet dweet) {
@@ -121,22 +206,6 @@ public class DweetDatabase extends SQLiteOpenHelper {
 
         for (Thing thing : things) {
             contentValues.put(THING_UNIT_ID, id);
-            contentValues.put(THING_UNIT_NAME, thing.getUnitName());
-            contentValues.put(THING_MASS, thing.getMass());
-            contentValues.put(THING_VOLTAGE, thing.getVoltage());
-
-            db.insert(THING_TABLE, null, contentValues);
-        }
-        db.close();
-    }
-
-    public void insertThing(Dweet dweet) throws SQLiteConstraintException {
-        ContentValues contentValues = new ContentValues();
-        List<Thing> things = dweet.getUnits();
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        for (Thing thing : things) {
-            contentValues.put(THING_UNIT_ID, thing.getId());
             contentValues.put(THING_UNIT_NAME, thing.getUnitName());
             contentValues.put(THING_MASS, thing.getMass());
             contentValues.put(THING_VOLTAGE, thing.getVoltage());
@@ -177,23 +246,8 @@ public class DweetDatabase extends SQLiteOpenHelper {
         return id;
     }
 
-    public List<String> getUnits() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        List<String> unitNames = new ArrayList<>();
-
-        db.close();
-        return unitNames;
-    }
-
-    private Boolean isColumnPresent(String columnName) throws SQLiteException {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return true;
-    }
-
     public Boolean checkIfDateExist(Date testDate) {
-        Boolean check = false;
         int i = 0;
-        int index = 0;
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cd = null;
@@ -204,22 +258,13 @@ public class DweetDatabase extends SQLiteOpenHelper {
             e.printStackTrace();
         }
 
-        if (cd != null) {
-            index = cd.getColumnIndex(DWEET_DATE);
-        } else {
-            System.out.println("Index is hardcoded");
-            index = 0;
-        }
-
         while (cd.moveToNext()) {
             i = cd.getColumnCount();
         }
 
-        if (i > 0) check = true;
-
         cd.close();
         db.close();
 
-        return check;
+        return (i > 0);
     }
 }

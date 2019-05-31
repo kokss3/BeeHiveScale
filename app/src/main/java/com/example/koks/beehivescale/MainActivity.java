@@ -17,18 +17,42 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.koks.beehivescale.base.DweetDatabase;
+import com.example.koks.beehivescale.base.Thing;
+
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private Context context = this;
-    private Common produceAPI;
+    List<Thing> temp = new ArrayList<>();
     private ListView hiveInfo;
+    DweetDatabase database;
+    LayoutAdapter Layout;
 
     SwipeRefreshLayout swipeRefreshLayout;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        startService(new Intent(this, netGetterService.class));
+
+        try {
+            temp = database.getLastDweet().getUnits();
+            System.out.println("Thing list: " + temp);
+
+            Layout = new LayoutAdapter(context, temp);
+            System.out.println("No Exception");
+        } catch (ParseException e) {
+            System.out.println(e);
+            System.out.println("ParseException");
+        } catch (NullPointerException e) {
+            System.out.println(e);
+            System.out.println("NullPointException");
+        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -36,14 +60,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
         swipeRefreshLayout=findViewById(R.id.sw_refresh);
         hiveInfo = findViewById(R.id.hive_info);
-        produceAPI = new Common();
-        startService(new Intent(this, netGetterService.class));
 
+
+        hiveInfo.setAdapter(Layout);
         swipeRefreshLayout.setOnRefreshListener(
                 () -> {
-                    //
-                }
-        );
+
+                });
         hiveInfo.setOnItemClickListener((parent, view, position, id) -> {
 
             FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -68,17 +91,13 @@ public class MainActivity extends AppCompatActivity {
 
             Save_name_unit.setOnClickListener(v -> {
                 if (changeItem.getText() != null) {
-                    //saveID.addNewUnitID(e.get(0), changeItem.getText().toString());
                     Log.e("What to change with", changeItem.getText().toString());
                 }
 
-                //    new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
                 dialog.cancel();
             });
 
             Reset_unit_old.setOnClickListener(v -> {
-                //saveID.addNewUnitID(e.get(0), e.get(0));
-                //      new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
                 dialog.cancel();
             });
 
@@ -100,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Refresh:
-                //new GetUnitData().execute(produceAPI.apiRequestNotKeyed());
                 return true;
             case R.id.Credentials:
                 startDialogCreds();
@@ -132,10 +150,8 @@ public class MainActivity extends AppCompatActivity {
         SaveSettings.setOnClickListener(v -> {
             if (UnitID.getText() != null) {
 
-                produceAPI.changeThing(UnitID.getText().toString());
             }
             if (UnitKey.getText() != null) {
-                // produceAPI.changeKey(UnitKey.getText().toString());
             }
 
             dialog.cancel();
