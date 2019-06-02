@@ -178,13 +178,22 @@ public class DweetDatabase extends SQLiteOpenHelper {
         return dweet;
     }
 
+
+    public void deleteAvatar(Thing thing) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from " + AVATAR_TABLE + " where " + AVATAR_UNIT_ID + " = '" + thing.getUnitName() + "';");
+
+        db.close();
+    }
+
     public void insertAvatar(Thing thing) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
+        contentValues.put(AVATAR_UNIT_ID, thing.getUnitName());
         contentValues.put(AVATAR_AVATAR, thing.getAvatar());
 
-        db.update(AVATAR_TABLE, contentValues, AVATAR_UNIT_ID, new String[]{thing.getUnitName()});
+        db.insert(AVATAR_TABLE, null, contentValues);
 
         db.close();
     }

@@ -64,11 +64,13 @@ public class LayoutAdapter extends BaseAdapter {
             PercBatt = newCV.findViewById(R.id.postotakBatt);
         }
         //set unitID to textView
-        UnitID.setText(beeInfoList.get(position).getUnitName());
+        if (beeInfoList.get(position).getAvatar() != null)
+            UnitID.setText(beeInfoList.get(position).getAvatar());
+        else UnitID.setText(beeInfoList.get(position).getUnitName());
         MassValue.setText(String.valueOf(beeInfoList.get(position).getMass()));
 
         double number = beeInfoList.get(position).getVoltage() / 255;
-        int perc = (int) ((1 - ((4.2 - (number * 4.175)) / 1.175)) * 100);
+        int perc = (int) ((1 - ((4.2 - (number * 4.175)) / 1.2)) * 100);
         number = number * 4.175;
 
         PercBatt.setText(String.valueOf(perc));

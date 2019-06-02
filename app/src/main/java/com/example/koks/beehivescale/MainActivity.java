@@ -1,15 +1,12 @@
 package com.example.koks.beehivescale;
 
 import android.app.Dialog;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,94 +15,73 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.koks.beehivescale.base.Dweet;
 import com.example.koks.beehivescale.base.DweetDatabase;
 import com.example.koks.beehivescale.base.Thing;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private Context context = this;
-    List<Thing> temp = new ArrayList<>();
     private ListView hiveInfo;
+    LayoutAdapter layoutAdapter;
     DweetDatabase database;
-    LayoutAdapter Layout;
-
     SwipeRefreshLayout swipeRefreshLayout;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         startService(new Intent(this, netGetterService.class));
         database = new DweetDatabase(this);
 
-        Dweet dweet;
-
-        try {
-            System.out.println("Try LastDweet ");
-            dweet = database.getLastDweet();
-            temp = dweet.getUnits();
-        } catch (NullPointerException e) {
-            System.out.println(e);
-            System.out.println("NullPointException");
-        }
-
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        swipeRefreshLayout=findViewById(R.id.sw_refresh);
-
+        swipeRefreshLayout = findViewById(R.id.sw_refresh);
         hiveInfo = findViewById(R.id.hive_info);
-        Layout = new LayoutAdapter(context, temp);
-        hiveInfo.setAdapter(Layout);
 
-        swipeRefreshLayout.setOnRefreshListener(
-                () -> {
+        getDweetToAdapter();
 
-                });
-        hiveInfo.setOnItemClickListener((parent, view, position, id) -> {
-
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            Fragment prev = getFragmentManager().findFragmentByTag("dialog");
-            if (prev != null) {
-                ft.remove(prev);
-            }
-            ft.addToBackStack(null);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            getDweetToAdapter();
+            swipeRefreshLayout.setRefreshing(false);
         });
 
         hiveInfo.setOnItemLongClickListener((parent, view, position, id) -> {
-            final ArrayList<String> e;
-            final Dialog dialog = new Dialog(context);
+            Dialog dialog = new Dialog(context);
+            Thing longPressedThing = (Thing) parent.getAdapter().getItem(position);
             dialog.setContentView(R.layout.renamer_of_unit);
-            Button Save_name_unit = dialog.findViewById(R.id.save_unit_name);
-            Button Reset_unit_old = dialog.findViewById(R.id.reset_to_old);
-            Button Cancel_name_unit = dialog.findViewById(R.id.cancel_unit_name);
-            final TextView originalItem = dialog.findViewById(R.id.originalName);
-            final EditText changeItem = dialog.findViewById(R.id.renameName);
-            e = (ArrayList<String>) parent.getAdapter().getItem(position);
-            originalItem.setText(e.get(0));
 
-            Save_name_unit.setOnClickListener(v -> {
+            TextView originalItem = dialog.findViewById(R.id.originalName);
+            EditText changeItem = dialog.findViewById(R.id.renameName);
+
+            Button saveNewName = dialog.findViewById(R.id.save_unit_name);
+            Button resetUnitOld = dialog.findViewById(R.id.reset_to_old);
+            Button cancelNameUnit = dialog.findViewById(R.id.cancel_unit_name);
+
+            originalItem.setText(longPressedThing.getUnitName());
+
+            saveNewName.setOnClickListener(v -> {
                 if (changeItem.getText() != null) {
-                    Log.e("What to change with", changeItem.getText().toString());
+                    longPressedThing.setAvatar(changeItem.getText().toString());
+                    database.insertAvatar(longPressedThing);
                 }
-
+                getDweetToAdapter();
                 dialog.cancel();
             });
 
-            Reset_unit_old.setOnClickListener(v -> {
+            resetUnitOld.setOnClickListener(v -> {
+                database.deleteAvatar(longPressedThing);
+                getDweetToAdapter();
                 dialog.cancel();
             });
 
-            Cancel_name_unit.setOnClickListener(v -> dialog.cancel());
+            cancelNameUnit.setOnClickListener(v -> dialog.cancel());
             dialog.show();
             return true;
         });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -118,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Refresh:
+                getDweetToAdapter();
                 return true;
             case R.id.Credentials:
                 startDialogCreds();
@@ -165,5 +142,19 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
         Button closeInfoDialog = dialog.findViewById(R.id.closeInfo);
         closeInfoDialog.setOnClickListener(v -> dialog.cancel());
+    }
+
+    private void getDweetToAdapter() {
+        List<Thing> tempList = database.getLastDweet().getUnits();
+
+        Collections.sort(tempList, (o1, o2) -> {
+            Thing a = o1;
+            Thing b = o2;
+            return a.getUnitName().compareToIgnoreCase(b.getUnitName());
+        });
+
+        layoutAdapter = new LayoutAdapter(context, tempList);
+        layoutAdapter.notifyDataSetChanged();
+        hiveInfo.setAdapter(layoutAdapter);
     }
 }
