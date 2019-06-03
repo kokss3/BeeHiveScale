@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startService(new Intent(this, netGetterService.class));
+        startService(new Intent(this, NetGetterService.class));
         database = new DweetDatabase(this);
 
         setContentView(R.layout.activity_main);
@@ -124,10 +124,7 @@ public class MainActivity extends AppCompatActivity {
         Button CanacelSettings = dialog.findViewById(R.id.cancel_setting);
 
         SaveSettings.setOnClickListener(v -> {
-            if (UnitID.getText() != null) {
-            }
-            if (UnitKey.getText() != null) {
-            }
+            if (UnitID.getText() != null) database.insertCreds(UnitID.getText().toString());
 
             dialog.cancel();
         });

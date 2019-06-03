@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.text.ParseException;
@@ -20,6 +19,9 @@ public class DweetDatabase extends SQLiteOpenHelper {
     private final static int VERSION = 1;
 
     private final static String DATABASE_NAME = "DweetDB.db";
+
+    private final static String NAME_DWEET = "name_dweet";
+    private final static String NAME_THING = "name_thing";
 
     private final static String DWEET_TABLE = "dweet_table";
     private final static String DWEET_UNIT_ID = "id";
@@ -40,6 +42,11 @@ public class DweetDatabase extends SQLiteOpenHelper {
             DWEET_TABLE + "(" +
             DWEET_UNIT_ID + " integer primary key autoincrement, " +
             DWEET_DATE + " datetime)";
+
+
+    private final static String EXEC_NAME = "create table " +
+            NAME_DWEET + "(" +
+            NAME_THING + " varchar(32)) ";
 
     private final static String EXEC_THINGS = "create table " +
             THING_TABLE + "(" +
@@ -66,6 +73,7 @@ public class DweetDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL(EXEC_NAME);
         db.execSQL(EXEC_VALUE);
         db.execSQL(EXEC_THINGS);
         db.execSQL(EXEC_AVATAR);
@@ -73,6 +81,8 @@ public class DweetDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL(EXEC_NAME);
+
     }
 
     public Dweet getLastDweet() {
@@ -225,18 +235,14 @@ public class DweetDatabase extends SQLiteOpenHelper {
     }
 
     //getting unit id by specific date
-    public Integer getId(Date date) {
-        Integer id = 0;
-        int index = 0;
+    public Integer getId(Date date) throws IllegalArgumentException, NullPointerException {
+        int id = 0;
+        int index;
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cd = null;
 
-        try {
-            cd = db.rawQuery("SELECT " + DWEET_UNIT_ID + " FROM " + DWEET_TABLE + " where date=?", new String[]{date.toString()});
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+        cd = db.rawQuery("SELECT " + DWEET_UNIT_ID + " FROM " + DWEET_TABLE + " where date=?", new String[]{date.toString()});
 
         if (cd != null) {
             index = cd.getColumnIndex(DWEET_UNIT_ID);
@@ -276,4 +282,32 @@ public class DweetDatabase extends SQLiteOpenHelper {
 
         return (i > 0);
     }
+
+    public void insertCreds(String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(NAME_THING, name);
+        db.insert(NAME_DWEET, null, contentValues);
+
+        db.close();
+    }
+
+    public String getCreds() {
+        String name = "";
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "select * from " + NAME_DWEET;
+        Cursor things = db.rawQuery(query, null);
+
+        if (things != null) {
+            while (things.moveToNext()) {
+                name = things.getString(things.getColumnIndex(NAME_THING));
+            }
+        }
+
+        db.close();
+        return name;
+    }
+
 }
