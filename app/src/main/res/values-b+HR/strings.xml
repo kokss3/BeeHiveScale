@@ -15,7 +15,7 @@
     <string name="about">O programu</string>
     <string name="about_info">Info</string>
     <string name="wait">Pričekajte</string>
-    <string name="NO_CONECTIVITY_ALEART">Nema konekcije. Učitano od zadnje uspješnog čitanja.</string>
+    <string name="NO_CONNECTIVITY_ALERT">Nema konekcije. Učitano od zadnje uspješnog čitanja.</string>
     <string name="_50">50</string>
     <string name="info">Informacije</string>
     <string name="desc01">Na slici je prikazan model kompletnog modula, svaka mjerna jedinica bi po sklapanju izgledati slično.</string>
@@ -33,5 +33,5 @@
     <string name="_25_05_2018">25.05.2018</string>
     <string name="dayThis">Today</string>
     <string name="days15">2 Weeks</string>
-    <string name="days7">Tjedan</string>
+    <string name="days7">week</string>
 </resources>

@@ -15,7 +15,7 @@
     <string name="about">Über</string>
     <string name="about_info">Über Info</string>
     <string name="wait">Warten</string>
-    <string name="NO_CONECTIVITY_ALEART">Keine Konnektivität. Lesen von der letzten guten Aktualisierung.</string>
+    <string name="NO_CONNECTIVITY_ALERT">Keine Konnektivität. Lesen von der letzten guten Aktualisierung.</string>
     <string name="_50">50</string>
     <string name="info">infoPanel</string>
     <string name="desc01">TextView</string>
@@ -27,5 +27,5 @@
     <string name="_25_05_2018">25.05.2018</string>
     <string name="dayThis">Today</string>
     <string name="days15">2 Weeks</string>
-    <string name="days7">Week</string>
+    <string name="days7">week</string>
 </resources>

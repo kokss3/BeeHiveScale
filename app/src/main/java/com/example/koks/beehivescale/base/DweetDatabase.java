@@ -7,42 +7,22 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.koks.beehivescale.base.interfaces.database;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class DweetDatabase extends SQLiteOpenHelper {
-
-    private final static int VERSION = 1;
-
-    private final static String DATABASE_NAME = "DweetDB.db";
-
-    private final static String NAME_DWEET = "name_dweet";
-    private final static String NAME_THING = "name_thing";
-
-    private final static String DWEET_TABLE = "dweet_table";
-    private final static String DWEET_UNIT_ID = "id";
-    private final static String DWEET_DATE = "date";
-
-    private final static String THING_TABLE = "thing_table";
-    private final static String THING_UNIT_ID = "id";
-    private final static String THING_UNIT_NAME = "unit_id";
-    private final static String THING_MASS = "mass";
-    private final static String THING_VOLTAGE = "voltage";
-
-    private final static String AVATAR_TABLE = "avatar_table";
-    private final static String AVATAR_UNIT_ID = "unit_id";
-    private final static String AVATAR_AVATAR = "avatar";
-
+public class DweetDatabase extends SQLiteOpenHelper implements database {
 
     private final static String EXEC_VALUE = "create table " +
             DWEET_TABLE + "(" +
             DWEET_UNIT_ID + " integer primary key autoincrement, " +
             DWEET_DATE + " datetime)";
-
 
     private final static String EXEC_NAME = "create table " +
             NAME_DWEET + "(" +
@@ -82,11 +62,29 @@ public class DweetDatabase extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(EXEC_NAME);
+    }
 
+    public List<Date> getDates(Date dateBegin, Date dateEnd) {
+        List<Date> dates = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "select * from " + DWEET_TABLE + " where " + DWEET_DATE + " between '" + dateBegin + "' and '" + dateEnd + "'";
+        Cursor allDates = db.rawQuery(query, null);
+
+        if (allDates != null) {
+            while (allDates.moveToNext()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+                try {
+                    dates.add(sdf.parse(allDates.getString(allDates.getColumnIndex(DWEET_DATE))));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return dates;
     }
 
     public Dweet getLastDweet() {
-        System.out.println("GetLastDweet");
 
         Dweet dweet = new Dweet();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -188,7 +186,6 @@ public class DweetDatabase extends SQLiteOpenHelper {
         return dweet;
     }
 
-
     public void deleteAvatar(Thing thing) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("delete from " + AVATAR_TABLE + " where " + AVATAR_UNIT_ID + " = '" + thing.getUnitName() + "';");
@@ -237,7 +234,7 @@ public class DweetDatabase extends SQLiteOpenHelper {
     //getting unit id by specific date
     public Integer getId(Date date) throws IllegalArgumentException, NullPointerException {
         int id = 0;
-        int index;
+        int index = 0;
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cd = null;
@@ -246,9 +243,6 @@ public class DweetDatabase extends SQLiteOpenHelper {
 
         if (cd != null) {
             index = cd.getColumnIndex(DWEET_UNIT_ID);
-        } else {
-            System.out.println("Index is hardcoded");
-            index = 0;
         }
 
         while (cd.moveToNext()) {
@@ -283,7 +277,7 @@ public class DweetDatabase extends SQLiteOpenHelper {
         return (i > 0);
     }
 
-    public void insertCreds(String name) {
+    public void insertCredentials(String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
@@ -293,7 +287,7 @@ public class DweetDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
-    public String getCreds() {
+    public String getCredentials() {
         String name = "";
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -310,4 +304,11 @@ public class DweetDatabase extends SQLiteOpenHelper {
         return name;
     }
 
+    //returns date - number of days in Date format
+    public Date getSpecificDayBefore(Date startDate, int daysBefore) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+        calendar.add(Calendar.DAY_OF_YEAR, -daysBefore);
+        return calendar.getTime();
+    }
 }

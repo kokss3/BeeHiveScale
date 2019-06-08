@@ -33,7 +33,7 @@ public class NetGetterService extends Service {
                     while (true) {
 
                         //get remembered dweet name
-                        String thingName = dataBase.getCreds();
+                        String thingName = dataBase.getCredentials();
                         if (thingName != null)
                             rawData = getHTTPData(API_LINK + thingName);
                         else
@@ -45,12 +45,10 @@ public class NetGetterService extends Service {
                             if (!dataBase.checkIfDateExist(dweet.getUnitDate())) {
                                 dataBase.insertDweet(dweet);
                                 dataBase.insertThing(dweet, dataBase.getId(dweet.getUnitDate()));
+                            }
 
-                                System.out.println("New dweet! ");
-                            } else System.out.println("Nothing new! ");
-
-                            System.out.println("Sleep for " + timeToWait + " mins!");
                             Thread.sleep((timeToWait * 60 * 1000));
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         } catch (ParseException e) {
@@ -95,7 +93,7 @@ public class NetGetterService extends Service {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Error: " + e);
+            e.printStackTrace();
         }
         return stream;
     }

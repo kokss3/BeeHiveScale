@@ -1,4 +1,4 @@
-package com.example.koks.beehivescale;
+package com.example.koks.beehivescale.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +14,7 @@ import java.util.List;
 
 import android.graphics.Color;
 
+import com.example.koks.beehivescale.R;
 import com.example.koks.beehivescale.base.Thing;
 
 import static android.view.View.inflate;
@@ -66,7 +67,9 @@ public class LayoutAdapter extends BaseAdapter {
         //set unitID to textView
         if (beeInfoList.get(position).getAvatar() != null)
             UnitID.setText(beeInfoList.get(position).getAvatar());
+
         else UnitID.setText(beeInfoList.get(position).getUnitName());
+
         MassValue.setText(String.valueOf(beeInfoList.get(position).getMass()));
 
         double number = beeInfoList.get(position).getVoltage() / 255;

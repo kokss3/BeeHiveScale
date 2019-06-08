@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Bee Hive Scale</string>
     <string name="status_baterija">status_baterija</string>
     <string name="unitID">Unit-A000001</string>
@@ -14,7 +14,7 @@
     <string name="about">About</string>
     <string name="about_info">About Info</string>
     <string name="wait">Please wait</string>
-    <string name="NO_CONECTIVITY_ALEART">No Connectivity. Reading from last good update.</string>
+    <string name="NO_CONNECTIVITY_ALERT" tools:ignore="MissingTranslation">No Connectivity. Reading from last good update.</string>
     <string name="_50">50</string>
     <string name="info">Information</string>
     <string name="desc01">This is complitely constructed unit, and your unit should be constructed in same way as on this image.</string>
@@ -32,5 +32,7 @@
     <string name="_25_05_2018">25.05.2018</string>
     <string name="dayThis">Today</string>
     <string name="days15">2 Weeks</string>
-    <string name="days7">Week</string>
+    <string name="days7">week</string>
+    <string name="choose_date">Choose Date</string>
+    <string name="unit">Unit</string>
 </resources>

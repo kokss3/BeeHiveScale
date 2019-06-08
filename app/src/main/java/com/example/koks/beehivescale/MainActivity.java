@@ -15,10 +15,16 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.koks.beehivescale.Adapters.LayoutAdapter;
+import com.example.koks.beehivescale.Adapters.ThingsAdapter;
+import com.example.koks.beehivescale.base.Dweet;
 import com.example.koks.beehivescale.base.DweetDatabase;
 import com.example.koks.beehivescale.base.Thing;
 
+import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,7 +54,15 @@ public class MainActivity extends AppCompatActivity {
             swipeRefreshLayout.setRefreshing(false);
         });
 
+        hiveInfo.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(getApplicationContext(), UnitActivity.class);
+            intent.putExtra("unitName", ((Thing) parent.getAdapter().getItem(position)).getUnitName());
+            startActivity(intent);
+
+        });
+
         hiveInfo.setOnItemLongClickListener((parent, view, position, id) -> {
+
             Dialog dialog = new Dialog(context);
             Thing longPressedThing = (Thing) parent.getAdapter().getItem(position);
             dialog.setContentView(R.layout.renamer_of_unit);
@@ -124,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         Button CanacelSettings = dialog.findViewById(R.id.cancel_setting);
 
         SaveSettings.setOnClickListener(v -> {
-            if (UnitID.getText() != null) database.insertCreds(UnitID.getText().toString());
+            if (UnitID.getText() != null) database.insertCredentials(UnitID.getText().toString());
 
             dialog.cancel();
         });
