@@ -6,18 +6,17 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.koks.beehivescale.Adapters.ThingsAdapter;
-import com.example.koks.beehivescale.base.Dweet;
-import com.example.koks.beehivescale.base.DweetDatabase;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class UnitActivity extends AppCompatActivity {
+import com.example.koks.beehivescale.Adapters.ThingsAdapter;
+import com.example.koks.beehivescale.base.Dweet;
+import com.example.koks.beehivescale.base.DweetDatabase;
 
+public class UnitActivity extends AppCompatActivity {
     DweetDatabase database;
     Button datePicker;
     boolean emptyPicker;
