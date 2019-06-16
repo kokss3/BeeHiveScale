@@ -55,7 +55,6 @@ public class ThingsAdapter extends BaseAdapter {
             if (asd.getUnitName().equals(unitName)) {
                 String mass = asd.getMass() + " kg";
                 massShow.setText(mass);
-                System.out.println(mass);
                 dateShow.setText(DateFormat.getTimeInstance(DateFormat.SHORT).format(dt.getUnitDate()));
             }
         }

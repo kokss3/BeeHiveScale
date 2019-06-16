@@ -37,6 +37,8 @@ public interface database {
 
     String getCredentials();
 
+    String getAvatar(String unitName);
+
     Integer getId(Date date) throws IllegalArgumentException, NullPointerException;
 
     void insertThing(Dweet dweet, int id) throws SQLiteConstraintException;
@@ -49,7 +51,7 @@ public interface database {
 
     void deleteAvatar(Thing thing);
 
-    List<Date> getDates(Date dateBegin, Date dateEnd);
+    List<Date> getDates(Date dateBegin, Date dateEnd, boolean isFull);
 
     Date getSpecificDayBefore(Date startDate, int daysBefore);
 

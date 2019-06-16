@@ -70,7 +70,8 @@ public class LayoutAdapter extends BaseAdapter {
 
         else UnitID.setText(beeInfoList.get(position).getUnitName());
 
-        MassValue.setText(String.valueOf(beeInfoList.get(position).getMass()));
+        String textForOut = beeInfoList.get(position).getMass() + " kg";
+        MassValue.setText(textForOut);
 
         double number = beeInfoList.get(position).getVoltage() / 255;
         int perc = (int) ((1 - ((4.2 - (number * 4.175)) / 1.2)) * 100);

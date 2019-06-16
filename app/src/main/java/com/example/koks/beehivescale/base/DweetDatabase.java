@@ -64,9 +64,19 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
         db.execSQL(EXEC_NAME);
     }
 
-    public List<Date> getDates(Date dateBegin, Date dateEnd) {
+    public List<Date> getDates(Date dateBegin, Date dateEnd, boolean isFull) {
         List<Date> dates = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
+
+        if (!isFull) {
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+            try {
+                dateBegin = sdf.parse(dateBegin.toString());
+                dateEnd = sdf.parse(dateEnd.toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
 
         String query = "select * from " + DWEET_TABLE + " where " + DWEET_DATE + " between '" + dateBegin + "' and '" + dateEnd + "'";
         Cursor allDates = db.rawQuery(query, null);
@@ -121,7 +131,6 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
                 thingList.add(thing);
             }
         }
-        System.out.println("ThingList " + thingList);
         dweet.setUnits(thingList);
 
         String newQuery = "select " + AVATAR_AVATAR + " from " + AVATAR_TABLE + " where unit_id=?";
@@ -137,7 +146,6 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
             avatar.close();
         }
 
-        System.out.println("Last Dweet is: " + dweet);
         things.close();
         db.close();
         return dweet;
@@ -234,25 +242,29 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
     //getting unit id by specific date
     public Integer getId(Date date) throws IllegalArgumentException, NullPointerException {
         int id = 0;
-        int index = 0;
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cd = null;
+        Cursor cd = db.rawQuery("SELECT " + DWEET_UNIT_ID + " FROM " + DWEET_TABLE + " where date=?", new String[]{date.toString()});
 
-        cd = db.rawQuery("SELECT " + DWEET_UNIT_ID + " FROM " + DWEET_TABLE + " where date=?", new String[]{date.toString()});
-
-        if (cd != null) {
-            index = cd.getColumnIndex(DWEET_UNIT_ID);
-        }
-
-        while (cd.moveToNext()) {
-            id = cd.getInt(index);
-        }
+        if (cd != null) while (cd.moveToNext()) id = cd.getInt(cd.getColumnIndex(DWEET_UNIT_ID));
 
         cd.close();
         db.close();
-
         return id;
+    }
+
+    @Override
+    public String getAvatar(String unitName) {
+        String avatar = "";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cd = db.rawQuery("SELECT " + AVATAR_AVATAR + " FROM " + AVATAR_TABLE + " where " + AVATAR_UNIT_ID + "=?", new String[]{unitName});
+
+        if (cd != null)
+            while (cd.moveToNext()) avatar = cd.getString(cd.getColumnIndex(AVATAR_AVATAR));
+
+        cd.close();
+        db.close();
+        return avatar;
     }
 
     public Boolean checkIfDateExist(Date testDate) {

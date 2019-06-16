@@ -35,4 +35,10 @@
     <string name="days7">week</string>
     <string name="choose_date">Choose Date</string>
     <string name="unit">Unit</string>
+    <string name="date">date</string>
+    <string name="avatar">avatar</string>
+    <string name="thingmass">thingMass</string>
+    <string name="thingdate">thingDate</string>
+    <string name="first_image">first_image</string>
+    <string name="second_image">second_image</string>
 </resources>

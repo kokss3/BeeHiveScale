@@ -14,17 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.example.koks.beehivescale.Adapters.LayoutAdapter;
-import com.example.koks.beehivescale.Adapters.ThingsAdapter;
-import com.example.koks.beehivescale.base.Dweet;
 import com.example.koks.beehivescale.base.DweetDatabase;
 import com.example.koks.beehivescale.base.Thing;
-
-import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         startService(new Intent(this, NetGetterService.class));
         database = new DweetDatabase(this);
 
@@ -133,13 +127,11 @@ public class MainActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.credentials_dialog);
         final EditText UnitID = dialog.findViewById(R.id.username);
-        final EditText UnitKey = dialog.findViewById(R.id.password);
         Button SaveSettings = dialog.findViewById(R.id.save_settings);
         Button CanacelSettings = dialog.findViewById(R.id.cancel_setting);
 
         SaveSettings.setOnClickListener(v -> {
             if (UnitID.getText() != null) database.insertCredentials(UnitID.getText().toString());
-
             dialog.cancel();
         });
 
@@ -151,8 +143,6 @@ public class MainActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.info_dialog);
         dialog.show();
-        Button closeInfoDialog = dialog.findViewById(R.id.closeInfo);
-        closeInfoDialog.setOnClickListener(v -> dialog.cancel());
     }
 
     private void getDweetToAdapter() {

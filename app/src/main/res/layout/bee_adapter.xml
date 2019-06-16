@@ -1,73 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/UnitID"
+        android:layout_width="120sp"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables,UselessParent">
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/unitID"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:verticalScrollbarPosition="right"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/UnitID"
-            android:layout_width="120sp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:text="@string/unitID"
-            android:textAlignment="center"
-            android:textAllCaps="false"
-            android:textColor="@android:color/black"
+    <TextView
+        android:id="@+id/mass_indicator"
+        android:layout_width="140sp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/mass"
 
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:verticalScrollbarPosition="right" />
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textStyle="bold|italic"
+        android:visibility="visible"
+        app:layout_constraintEnd_toStartOf="@+id/statusBaterije"
+        app:layout_constraintStart_toEndOf="@+id/UnitID"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/mass_indicator"
-            android:layout_width="140sp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:text="@string/mass"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textStyle="bold|italic"
-            android:visibility="visible" />
+    <ImageView
+        android:id="@+id/statusBaterije"
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/status_baterija"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@mipmap/zelena_puna" />
 
-        <ImageView
-            android:id="@+id/statusBaterije"
-            android:layout_width="40sp"
-            android:layout_height="40sp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_gravity="end"
-            android:contentDescription="@string/status_baterija"
-            app:srcCompat="@mipmap/zelena_puna"
-            tools:ignore="RtlHardcoded" />
-
-        <TextView
-            android:id="@+id/postotakBatt"
-            android:layout_width="15dp"
-            android:layout_height="22sp"
-            android:layout_alignLeft="@+id/statusBaterije"
-            android:layout_alignRight="@+id/statusBaterije"
-            android:layout_alignBottom="@+id/statusBaterije"
-            android:text="@string/_50"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textSize="8sp" />
-    </RelativeLayout>
-
-
-</RelativeLayout>
+    <TextView
+        android:id="@+id/postotakBatt"
+        android:layout_width="15dp"
+        android:layout_height="22dp"
+        android:text="@string/_50"
+        android:textAlignment="center"
+        android:textColor="#ffffff"
+        android:textSize="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/statusBaterije"
+        app:layout_constraintEnd_toEndOf="@+id/statusBaterije"
+        app:layout_constraintStart_toStartOf="@+id/statusBaterije" />
+</android.support.constraint.ConstraintLayout>
