@@ -14,12 +14,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.List;
 
 //here we get all data from dweet.io every 30 minutes
 public class NetGetterService extends Service {
     private String rawData="none";
     JsonDecoder decoder = new JsonDecoder();
     private static final String API_LINK = "https://dweet.io/get/latest/dweet/for/";
+    private static final String API_LINK_5_DWEETS = "https://dweet.io/get/dweets/for/";
     private Long timeToWait = 30L; //in minutes
 
     @Override
@@ -29,6 +31,7 @@ public class NetGetterService extends Service {
             @Override
             public void run() {
                 DweetDatabase dataBase = new DweetDatabase(getApplicationContext());
+                int counter = 0;
                 try {
                     while (true) {
 
@@ -40,15 +43,31 @@ public class NetGetterService extends Service {
                             rawData = getHTTPData(API_LINK + "testis");
 
                         try {
-                            Dweet dweet = decoder.process(rawData);
+                            if (counter >= 5) {
+                                counter = 0;
+
+                                List<Dweet> dweetList = decoder.proccessFiveDweets(getHTTPData(
+                                        API_LINK_5_DWEETS + thingName));
+
+                                if (dweetList != null) {
+                                    for (Dweet dt : dweetList) {
+                                        if (!dataBase.checkIfDateExist(dt.getUnitDate())) {
+                                            dataBase.insertDweet(dt);
+                                            dataBase.insertThing(dt, dataBase.getId(dt.getUnitDate()));
+                                        }
+                                    }
+                                }
+                            }
+
+                            Dweet dweet = decoder.processOneDweet(rawData);
 
                             if (!dataBase.checkIfDateExist(dweet.getUnitDate())) {
                                 dataBase.insertDweet(dweet);
                                 dataBase.insertThing(dweet, dataBase.getId(dweet.getUnitDate()));
                             }
 
+                            counter++;
                             Thread.sleep((timeToWait * 60 * 1000));
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         } catch (ParseException e) {
@@ -68,7 +87,7 @@ public class NetGetterService extends Service {
         getter.start();
     }
 
-    public String getHTTPData(String urlStream) {
+    private String getHTTPData(String urlStream) {
         String stream = "";
 
         try {
@@ -100,7 +119,6 @@ public class NetGetterService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         return START_STICKY;
         }
 

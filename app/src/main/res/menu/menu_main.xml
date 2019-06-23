@@ -4,6 +4,9 @@
         android:id="@+id/Refresh"
         android:title="@string/refresh_en" />
     <item
+        android:id="@+id/saveCSV"
+        android:title="@string/save_csv" />
+    <item
         android:id="@+id/Credentials"
         android:title="@string/credentials_en" />
     <item

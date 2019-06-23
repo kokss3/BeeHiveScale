@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.koks.beehivescale"
-        minSdkVersion 19
+        minSdkVersion 22
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -30,6 +30,7 @@ dependencies {
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 
+    implementation 'com.opencsv:opencsv:4.6'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'net.danlew:android.joda:2.10.1.2'
     implementation 'com.jjoe64:graphview:4.2.2'
