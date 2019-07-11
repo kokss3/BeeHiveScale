@@ -11,6 +11,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -59,7 +61,7 @@ public class UnitActivity extends AppCompatActivity {
         datePicker.setOnClickListener(v -> {
             DatePickerDialog datePickerDialog =
                     new DatePickerDialog(this, (view, year, monthOfYear, dayOfMonth) -> {
-                        clickedDate = dayOfMonth + "." + (monthOfYear + 1) + "." + year;
+                        clickedDate = year + "-" +  (monthOfYear + 1) + "-" + dayOfMonth;
                         getAdapter(clickedDate);
                     }, mYear, mMonth, mDay);
             datePickerDialog.show();
@@ -70,18 +72,19 @@ public class UnitActivity extends AppCompatActivity {
         List<Date> datesForDay;
         List<Dweet> dweetsForDay = new ArrayList<>();
         Date selectedDate = null;
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.mm.yyyy", Locale.ENGLISH);
-
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd", Locale.ENGLISH);
         try {
             selectedDate = sdf.parse(datePicked);
+            System.out.println("Date grr: "+ selectedDate);
+            chosenDate.setText(new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH).format(selectedDate));
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        chosenDate.setText(datePicked);
-        datesForDay = database.getDates(
-                database.getSpecificDayBefore(selectedDate, 1), selectedDate, false);
 
+        datesForDay = database.getDates(selectedDate);
         for (Date date : datesForDay) dweetsForDay.add(database.getDweet(date));
+
+        Collections.sort(dweetsForDay,(o1, o2) ->  o1.getUnitDate().compareTo(o2.getUnitDate()));
 
         ThingsAdapter thingAdapter = new ThingsAdapter(this, dweetsForDay, unitName);
         thingList.setAdapter(thingAdapter);

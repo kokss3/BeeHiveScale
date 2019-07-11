@@ -19,10 +19,17 @@ import java.util.Locale;
 
 public class DweetDatabase extends SQLiteOpenHelper implements database {
 
+    private static final int VERSION = 1;
+
+    private SimpleDateFormat sdfDATE = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+    private SimpleDateFormat sdfTIME = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
+    private SimpleDateFormat sdfDATE_TIME = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+
     private final static String EXEC_VALUE = "create table " +
             DWEET_TABLE + "(" +
             DWEET_UNIT_ID + " integer primary key autoincrement, " +
-            DWEET_DATE + " datetime)";
+            DWEET_DATE + " date, "+
+            DWEET_TIME + " time)";
 
     private final static String EXEC_NAME = "create table " +
             NAME_DWEET + "(" +
@@ -51,6 +58,16 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
         super(context, DATABASE_NAME, null, VERSION);
     }
 
+    private Date formatDateFromDateAndTime(String date, String time){
+        Date newDate = null;
+        try {
+            newDate = sdfDATE_TIME.parse(date +" "+ time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return newDate;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(EXEC_NAME);
@@ -61,36 +78,37 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(EXEC_NAME);
+        db.execSQL("drop table if exists "+ DWEET_TABLE);
+        db.execSQL("drop table if exists "+ THING_TABLE);
+        db.execSQL("drop table if exists "+ AVATAR_TABLE);
+        db.execSQL("drop table if exists "+ NAME_DWEET);
+        onCreate(db);
+
     }
 
-    public List<Date> getDates(Date dateBegin, Date dateEnd, boolean isFull) {
+    public List<Date> getDates(Date dateBegin) {
         List<Date> dates = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        if (!isFull) {
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-            try {
-                dateBegin = sdf.parse(dateBegin.toString());
-                dateEnd = sdf.parse(dateEnd.toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-
-        String query = "select * from " + DWEET_TABLE + " where " + DWEET_DATE + " between '" + dateBegin + "' and '" + dateEnd + "'";
-        Cursor allDates = db.rawQuery(query, null);
+        String query = "select * from " + DWEET_TABLE + " where " + DWEET_DATE + " =? ";
+        Cursor allDates = db.rawQuery(query, new String[] { sdfDATE.format(dateBegin) });
 
         if (allDates != null) {
             while (allDates.moveToNext()) {
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
                 try {
-                    dates.add(sdf.parse(allDates.getString(allDates.getColumnIndex(DWEET_DATE))));
-                } catch (ParseException e) {
+                String time = allDates.getString(allDates.getColumnIndex(DWEET_DATE)) + " " +
+                        allDates.getString(allDates.getColumnIndex(DWEET_TIME));
+
+                    System.out.println("Time: " + time);
+                    dates.add(sdfDATE_TIME.parse( time ));
+
+                }catch (ParseException e){
                     e.printStackTrace();
                 }
+                System.out.println("Dates: " + dates);
             }
         }
+        allDates.close();
         return dates;
     }
 
@@ -102,17 +120,13 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
 
         String getDateAndID = "select * from dweet_table order by id desc limit 1";
 
-        Cursor date = db.rawQuery(getDateAndID, null);
+        Cursor cd = db.rawQuery(getDateAndID, null);
 
-        if (date != null) {
-            while (date.moveToNext()) {
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-                try {
-                    dweet.setUnitDate(sdf.parse(date.getString(date.getColumnIndex(DWEET_DATE))));
-                    dweet.setId(date.getInt(date.getColumnIndex(DWEET_UNIT_ID)));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+        if (cd != null) {
+            while (cd.moveToNext()) {
+                dweet.setUnitDate(formatDateFromDateAndTime(cd.getString(cd.getColumnIndex(DWEET_DATE)),
+                        cd.getString(cd.getColumnIndex(DWEET_TIME))));
+                dweet.setId(cd.getInt(cd.getColumnIndex(DWEET_UNIT_ID)));
             }
         }
 
@@ -217,7 +231,9 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(DWEET_DATE, dweet.getUnitDate().toString());
+        contentValues.put(DWEET_DATE, sdfDATE.format(dweet.getUnitDate()));
+        contentValues.put(DWEET_TIME, sdfTIME.format(dweet.getUnitDate()));
+
         db.insert(DWEET_TABLE, null, contentValues);
 
         db.close();
@@ -244,7 +260,8 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
         int id = 0;
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cd = db.rawQuery("SELECT " + DWEET_UNIT_ID + " FROM " + DWEET_TABLE + " where date=?", new String[]{date.toString()});
+        Cursor cd = db.rawQuery("SELECT " + DWEET_UNIT_ID + " FROM " + DWEET_TABLE + " where time=?",
+                new String[]{ sdfTIME.format(date) });
 
         if (cd != null) while (cd.moveToNext()) id = cd.getInt(cd.getColumnIndex(DWEET_UNIT_ID));
 
@@ -257,7 +274,8 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
     public String getAvatar(String unitName) {
         String avatar = "";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cd = db.rawQuery("SELECT " + AVATAR_AVATAR + " FROM " + AVATAR_TABLE + " where " + AVATAR_UNIT_ID + "=?", new String[]{unitName});
+        Cursor cd = db.rawQuery("SELECT " + AVATAR_AVATAR + " FROM " + AVATAR_TABLE + " where "
+                + AVATAR_UNIT_ID + "=?", new String[]{unitName});
 
         if (cd != null)
             while (cd.moveToNext()) avatar = cd.getString(cd.getColumnIndex(AVATAR_AVATAR));
@@ -271,19 +289,31 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
         int i = 0;
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cd = null;
+        Cursor time = null;
+        Cursor date = null;
 
         try {
-            cd = db.rawQuery("SELECT " + DWEET_DATE + " FROM " + DWEET_TABLE + " where date=?", new String[]{testDate.toString()});
+            time = db.rawQuery("SELECT " + DWEET_TIME + " FROM " + DWEET_TABLE + " where time=?",
+                    new String[]{ sdfTIME.format(testDate) });
+            date = db.rawQuery("SELECT " + DWEET_DATE + " FROM " + DWEET_TABLE + " where date=?",
+                    new String[]{ sdfDATE.format(testDate) });
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
 
-        while (cd.moveToNext()) {
-            i = cd.getColumnCount();
+        while (date.moveToNext()) {
+            i = date.getColumnCount();
+        }
+        date.close();
+
+        if (i > 0) {
+            i = 0;
+            while (time.moveToNext()) {
+                i = time.getColumnCount();
+            }
         }
 
-        cd.close();
+        time.close();
         db.close();
 
         return (i > 0);
@@ -317,10 +347,10 @@ public class DweetDatabase extends SQLiteOpenHelper implements database {
     }
 
     //returns date - number of days in Date format
-    public Date getSpecificDayBefore(Date startDate, int daysBefore) {
+    public Date getSpecificDayBefore(Date startDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
-        calendar.add(Calendar.DAY_OF_YEAR, -daysBefore);
+        calendar.add(Calendar.DAY_OF_YEAR,1);
         return calendar.getTime();
     }
 }

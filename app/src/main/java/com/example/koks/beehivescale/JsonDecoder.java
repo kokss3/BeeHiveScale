@@ -1,5 +1,7 @@
 package com.example.koks.beehivescale;
 
+import android.os.SystemClock;
+
 import com.example.koks.beehivescale.base.Dweet;
 import com.example.koks.beehivescale.base.Thing;
 
@@ -50,20 +52,19 @@ public class JsonDecoder {
     public List<Dweet> proccessFiveDweets(String obj) throws JSONException, ParseException {
         List<Dweet> dweetList = new ArrayList<>();
         JSONObject jsonObj = new JSONObject(obj);
-        JSONArray with = jsonObj.getJSONArray("with");
+        System.out.println("JSNOBJ "+obj);
+        JSONArray withFive = jsonObj.getJSONArray("with");
 
+        System.out.println("WithFive: " + withFive.length());
+        SystemClock.sleep(1000);
         int i = 0;
-        JSONObject a;
-        while (with.optJSONObject(i) != null) {
+        while (withFive.optJSONObject(i) != null) {
             Dweet dweet = new Dweet();
-            a = with.optJSONObject(i);
-            System.out.println("JsonArray size: " + a);
-            i++;
-
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
-            dweet.setUnitDate(sdf.parse(with.getJSONObject(0).getString("created")));
-            JSONObject b = with.getJSONObject(0).getJSONObject("content");
-
+            dweet.setUnitDate(sdf.parse(withFive.getJSONObject(i).getString("created")));
+            JSONObject b = withFive.getJSONObject(i).getJSONObject("content");
+            System.out.println("Date: " + dweet.getUnitDate());
+            i++;
             Iterator<String> iter = b.keys();
 
             List<Thing> things = new ArrayList<>();

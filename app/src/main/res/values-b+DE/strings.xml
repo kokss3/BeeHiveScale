@@ -30,4 +30,6 @@
     <string name="first_image">first_image</string>
     <string name="second_image">second_image</string>
     <string name="save_csv">Save CSV</string>
+    <string name="hour">Hour</string>
+    <string name="demo_mass">Mass</string>
 </resources>

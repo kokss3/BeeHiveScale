@@ -18,7 +18,7 @@ import java.util.List;
 
 //here we get all data from dweet.io every 30 minutes
 public class NetGetterService extends Service {
-    private String rawData="none";
+    private String rawFiveData, rawData="none";
     JsonDecoder decoder = new JsonDecoder();
     private static final String API_LINK = "https://dweet.io/get/latest/dweet/for/";
     private static final String API_LINK_5_DWEETS = "https://dweet.io/get/dweets/for/";
@@ -31,42 +31,50 @@ public class NetGetterService extends Service {
             @Override
             public void run() {
                 DweetDatabase dataBase = new DweetDatabase(getApplicationContext());
-                int counter = 0;
+                int counter = 5;
                 try {
                     while (true) {
 
                         //get remembered dweet name
                         String thingName = dataBase.getCredentials();
-                        if (thingName != null)
-                            rawData = getHTTPData(API_LINK + thingName);
-                        else
-                            rawData = getHTTPData(API_LINK + "testis");
+                        if (thingName != null) {
+                            rawData = API_LINK + thingName;
+                            rawFiveData = API_LINK_5_DWEETS + thingName;
+                        }else {
+                            rawData = API_LINK + "testis";
+                            rawFiveData = API_LINK_5_DWEETS + "testis";
+                        }
+
+                        String toJSON = getHTTPData(rawData);
 
                         try {
                             if (counter >= 5) {
+                                System.out.println("Process 5 dweets.");
                                 counter = 0;
-
                                 List<Dweet> dweetList = decoder.proccessFiveDweets(getHTTPData(
-                                        API_LINK_5_DWEETS + thingName));
+                                        rawFiveData));
 
                                 if (dweetList != null) {
                                     for (Dweet dt : dweetList) {
                                         if (!dataBase.checkIfDateExist(dt.getUnitDate())) {
+                                            System.out.println("New dweet!");
                                             dataBase.insertDweet(dt);
                                             dataBase.insertThing(dt, dataBase.getId(dt.getUnitDate()));
-                                        }
+                                        }else System.out.println("Nothing new!");
                                     }
                                 }
-                            }
-
-                            Dweet dweet = decoder.processOneDweet(rawData);
-
-                            if (!dataBase.checkIfDateExist(dweet.getUnitDate())) {
-                                dataBase.insertDweet(dweet);
-                                dataBase.insertThing(dweet, dataBase.getId(dweet.getUnitDate()));
+                            }else {
+                                System.out.println("Process one dweet.");
+                                Dweet dweet = decoder.processOneDweet(toJSON);
+                                if (!dataBase.checkIfDateExist(dweet.getUnitDate())) {
+                                    System.out.println("New dweet!");
+                                    dataBase.insertDweet(dweet);
+                                    dataBase.insertThing(dweet, dataBase.getId(dweet.getUnitDate()));
+                                }else System.out.println("Nothing new!");
                             }
 
                             counter++;
+                            System.out.format("Sleep for %d minutes.\n",timeToWait);
                             Thread.sleep((timeToWait * 60 * 1000));
                         } catch (JSONException e) {
                             e.printStackTrace();

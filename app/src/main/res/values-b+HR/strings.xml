@@ -36,4 +36,6 @@
     <string name="first_image">Slika 1</string>
     <string name="second_image">Slika 2</string>
     <string name="save_csv">Spremi CSV</string>
+    <string name="hour">Sat</string>
+    <string name="demo_mass">Masa</string>
 </resources>

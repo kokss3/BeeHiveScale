@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface database {
 
-    int VERSION = 1;
-
     String DATABASE_NAME = "DweetDB.db";
 
     String NAME_DWEET = "name_dweet";
@@ -20,6 +18,7 @@ public interface database {
     String DWEET_TABLE = "dweet_table";
     String DWEET_UNIT_ID = "id";
     String DWEET_DATE = "date";
+    String DWEET_TIME = "time";
 
     String THING_TABLE = "thing_table";
     String THING_UNIT_ID = "id";
@@ -51,9 +50,9 @@ public interface database {
 
     void deleteAvatar(Thing thing);
 
-    List<Date> getDates(Date dateBegin, Date dateEnd, boolean isFull);
+    List<Date> getDates(Date dateBegin);
 
-    Date getSpecificDayBefore(Date startDate, int daysBefore);
+    Date getSpecificDayBefore(Date startDate);
 
     Boolean checkIfDateExist(Date testDate);
 }
